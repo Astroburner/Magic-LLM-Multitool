@@ -1,0 +1,62 @@
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime-Dateien
+*.pid
+*.seed
+*.pid.lock
+
+# Verzeichnisse
+node_modules/
+dist/
+build/
+tmp/
+temp/
+.cache/
+.venv/
+.env/
+.env.*  
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+
+# VSCode Workspace Settings
+*.code-workspace
+
+# Test coverage
+coverage/
+*.lcov
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon?
+
+# Windows
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Python
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Sonstiges
+*.swp
+*.swo
+*.bak
+*.tmp

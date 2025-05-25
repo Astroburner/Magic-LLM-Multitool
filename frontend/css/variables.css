@@ -1,0 +1,321 @@
+/* 
+ * Optimierte CSS-Variablen für die Ollama Chat-Anwendung.
+ * Kompaktere Abstände und ruhigeres Design.
+ */
+
+:root {
+  /* === DESIGN SYSTEM === */
+  
+  /* Basis-Radien für konsistente Rundungen */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+  
+  /* Übergänge für smooth Animationen */
+  --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Schatten-System - subtiler */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 3px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03);
+  
+  /* Typografie-System */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  
+  /* Font Sizes - Kompakter */
+  --text-xs: 0.7rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.9rem;
+  --text-lg: 1rem;
+  --text-xl: 1.1rem;
+  --text-2xl: 1.3rem;
+  --text-3xl: 1.6rem;
+  
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* Spacing System - Kompaktere Abstände */
+  --space-px: 1px;
+  --space-0: 0;
+  --space-0-5: 0.1rem;   /* 1.6px */
+  --space-1: 0.2rem;     /* 3.2px */
+  --space-1-5: 0.3rem;   /* 4.8px */
+  --space-2: 0.4rem;     /* 6.4px */
+  --space-2-5: 0.5rem;   /* 8px */
+  --space-3: 0.6rem;     /* 9.6px */
+  --space-3-5: 0.7rem;   /* 11.2px */
+  --space-4: 0.8rem;     /* 12.8px */
+  --space-5: 1rem;       /* 16px */
+  --space-6: 1.2rem;     /* 19.2px */
+  --space-7: 1.4rem;     /* 22.4px */
+  --space-8: 1.6rem;     /* 25.6px */
+  --space-10: 2rem;      /* 32px */
+  --space-12: 2.4rem;    /* 38.4px */
+  --space-16: 3.2rem;    /* 51.2px */
+  --space-20: 4rem;      /* 64px */
+  
+  /* === THEME COLORS === */
+  
+  /* Brand Colors - Moderner Gradient */
+  --brand-50: #f0f4ff;
+  --brand-100: #e0eaff;
+  --brand-200: #c7d7ff;
+  --brand-300: #a4bbff;
+  --brand-400: #8193ff;
+  --brand-500: #6366f1;  /* Primary */
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+  --brand-950: #1e1b4b;
+  
+  /* Success Colors */
+  --success-50: #f0fdf4;
+  --success-100: #dcfce7;
+  --success-200: #bbf7d0;
+  --success-300: #86efac;
+  --success-400: #4ade80;
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+  --success-700: #15803d;
+  --success-800: #166534;
+  --success-900: #14532d;
+  
+  /* Warning Colors */
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-300: #fcd34d;
+  --warning-400: #fbbf24;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --warning-700: #b45309;
+  --warning-800: #92400e;
+  --warning-900: #78350f;
+  
+  /* Error Colors */
+  --error-50: #fef2f2;
+  --error-100: #fee2e2;
+  --error-200: #fecaca;
+  --error-300: #fca5a5;
+  --error-400: #f87171;
+  --error-500: #ef4444;
+  --error-600: #dc2626;
+  --error-700: #b91c1c;
+  --error-800: #991b1b;
+  --error-900: #7f1d1d;
+  
+  /* === LIGHT THEME === */
+  --light-bg-primary: #ffffff;
+  --light-bg-secondary: #f8fafc;
+  --light-bg-tertiary: #f1f5f9;
+  --light-bg-accent: #e2e8f0;
+  
+  --light-text-primary: #0f172a;
+  --light-text-secondary: #475569;
+  --light-text-tertiary: #64748b;
+  --light-text-muted: #94a3b8;
+  
+  --light-border-primary: #e2e8f0;
+  --light-border-secondary: #cbd5e1;
+  --light-border-accent: #94a3b8;
+  
+  --light-surface-elevated: #ffffff;
+  --light-surface-overlay: rgba(15, 23, 42, 0.04);
+  
+  /* Chat-spezifische Light Colors */
+  --light-chat-user-bg: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-600) 100%);
+  --light-chat-user-text: #ffffff;
+  --light-chat-ai-bg: var(--light-surface-elevated);
+  --light-chat-ai-text: var(--light-text-primary);
+  --light-chat-user-border: var(--brand-400);
+  --light-chat-ai-border: var(--light-border-secondary);
+  
+  /* === DARK THEME === */
+  --dark-bg-primary: #0f172a;
+  --dark-bg-secondary: #1e293b;
+  --dark-bg-tertiary: #334155;
+  --dark-bg-accent: #475569;
+  
+  --dark-text-primary: #f8fafc;
+  --dark-text-secondary: #e2e8f0;
+  --dark-text-tertiary: #cbd5e1;
+  --dark-text-muted: #94a3b8;
+  
+  --dark-border-primary: #334155;
+  --dark-border-secondary: #475569;
+  --dark-border-accent: #64748b;
+  
+  --dark-surface-elevated: #1e293b;
+  --dark-surface-overlay: rgba(248, 250, 252, 0.04);
+  
+  /* Chat-spezifische Dark Colors */
+  --dark-chat-user-bg: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-600) 100%);
+  --dark-chat-user-text: #ffffff;
+  --dark-chat-ai-bg: var(--dark-bg-tertiary);
+  --dark-chat-ai-text: var(--dark-text-primary);
+  --dark-chat-user-border: var(--brand-400);
+  --dark-chat-ai-border: var(--dark-border-secondary);
+  
+  /* === AKTIVE THEME VARIABLEN === */
+  /* Diese werden dynamisch überschrieben basierend auf dem gewählten Theme */
+  
+  /* Basis-Farben */
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --bg-tertiary: var(--light-bg-tertiary);
+  --bg-accent: var(--light-bg-accent);
+  
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --text-tertiary: var(--light-text-tertiary);
+  --text-muted: var(--light-text-muted);
+  
+  --border-primary: var(--light-border-primary);
+  --border-secondary: var(--light-border-secondary);
+  --border-accent: var(--light-border-accent);
+  
+  --surface-elevated: var(--light-surface-elevated);
+  --surface-overlay: var(--light-surface-overlay);
+  
+  /* Chat-Farben */
+  --chat-user-bg: var(--light-chat-user-bg);
+  --chat-user-text: var(--light-chat-user-text);
+  --chat-ai-bg: var(--light-chat-ai-bg);
+  --chat-ai-text: var(--light-chat-ai-text);
+  --chat-user-border: var(--light-chat-user-border);
+  --chat-ai-border: var(--light-chat-ai-border);
+  
+  /* Legacy-Variablen für Rückwärtskompatibilität */
+  --primary-color: var(--brand-500);
+  --secondary-color: var(--bg-secondary);
+  --accent-color: var(--brand-600);
+  --border-radius: var(--radius-md);
+  --transition-time: var(--transition-normal);
+  --shadow: var(--shadow-md);
+  
+  /* Spezifische UI-Elemente */
+  --sidebar-bg: var(--bg-secondary);
+  --chat-bg: var(--bg-primary);
+  --input-bg: var(--surface-elevated);
+  --hover-color: var(--surface-overlay);
+  --user-msg-bg: var(--chat-user-bg);
+  --ai-msg-bg: var(--chat-ai-bg);
+  --border-color: var(--border-primary);
+  --text-color: var(--text-primary);
+  --error-color: var(--error-500);
+  --success-color: var(--success-500);
+  --info-color: var(--brand-500);
+  --warning-color: var(--warning-500);
+}
+
+/* === THEME SWITCHING === */
+
+.light-mode {
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --bg-tertiary: var(--light-bg-tertiary);
+  --bg-accent: var(--light-bg-accent);
+  
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --text-tertiary: var(--light-text-tertiary);
+  --text-muted: var(--light-text-muted);
+  
+  --border-primary: var(--light-border-primary);
+  --border-secondary: var(--light-border-secondary);
+  --border-accent: var(--light-border-accent);
+  
+  --surface-elevated: var(--light-surface-elevated);
+  --surface-overlay: var(--light-surface-overlay);
+  
+  --chat-user-bg: var(--light-chat-user-bg);
+  --chat-user-text: var(--light-chat-user-text);
+  --chat-ai-bg: var(--light-chat-ai-bg);
+  --chat-ai-text: var(--light-chat-ai-text);
+  --chat-user-border: var(--light-chat-user-border);
+  --chat-ai-border: var(--light-chat-ai-border);
+  
+  /* Legacy Updates */
+  --sidebar-bg: var(--light-bg-secondary);
+  --chat-bg: var(--light-bg-primary);
+  --input-bg: var(--light-surface-elevated);
+  --hover-color: var(--light-surface-overlay);
+  --user-msg-bg: var(--light-chat-user-bg);
+  --ai-msg-bg: var(--light-chat-ai-bg);
+  --border-color: var(--light-border-primary);
+  --text-color: var(--light-text-primary);
+}
+
+.dark-mode {
+  --bg-primary: var(--dark-bg-primary);
+  --bg-secondary: var(--dark-bg-secondary);
+  --bg-tertiary: var(--dark-bg-tertiary);
+  --bg-accent: var(--dark-bg-accent);
+  
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --text-tertiary: var(--dark-text-tertiary);
+  --text-muted: var(--dark-text-muted);
+  
+  --border-primary: var(--dark-border-primary);
+  --border-secondary: var(--dark-border-secondary);
+  --border-accent: var(--dark-border-accent);
+  
+  --surface-elevated: var(--dark-surface-elevated);
+  --surface-overlay: var(--dark-surface-overlay);
+  
+  --chat-user-bg: var(--dark-chat-user-bg);
+  --chat-user-text: var(--dark-chat-user-text);
+  --chat-ai-bg: var(--dark-chat-ai-bg);
+  --chat-ai-text: var(--dark-chat-ai-text);
+  --chat-user-border: var(--dark-chat-user-border);
+  --chat-ai-border: var(--dark-chat-ai-border);
+  
+  /* Legacy Updates */
+  --sidebar-bg: var(--dark-bg-secondary);
+  --chat-bg: var(--dark-bg-primary);
+  --input-bg: var(--dark-surface-elevated);
+  --hover-color: var(--dark-surface-overlay);
+  --user-msg-bg: var(--dark-chat-user-bg);
+  --ai-msg-bg: var(--dark-chat-ai-bg);
+  --border-color: var(--dark-border-primary);
+  --text-color: var(--dark-text-primary);
+}
+
+/* === RESPONSIVE BREAKPOINTS === */
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* === GLASSMORPHISM EFFECTS === */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
+  --glass-backdrop: blur(6px);
+}
+
+.dark-mode {
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(248, 250, 252, 0.08);
+  --glass-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
+}

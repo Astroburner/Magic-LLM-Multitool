@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Astroburner's Magic Tool - A modern chat interface for Ollama AI">
+    <meta name="theme-color" content="#6366f1">
+    
+    <title>Astroburner's Magic Tool</title>
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Magic Tool">
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- =============================================== -->
+        <!-- SIDEBAR / SETTINGS PANEL -->
+        <!-- =============================================== -->
+        <aside class="sidebar" role="complementary" aria-label="Settings">
+            <div class="settings-container">
+                <h2>Settings</h2>
+                
+                <!-- LLM Model Settings -->
+                <section class="settings-section" aria-labelledby="llm-settings">
+                    <button class="settings-header" id="llm-settings" aria-expanded="true" data-target="llm-content">
+                        <span class="settings-icon">🤖</span>
+                        <span>LLM Models</span>
+                        <span class="chevron">▼</span>
+                    </button>
+                    
+                    <div class="settings-content" id="llm-content">
+                        <div class="select-container">
+                            <label for="model-select">Select Model</label>
+                            <select id="model-select" class="settings-select" aria-describedby="model-help">
+                                <option value="">Loading models...</option>
+                            </select>
+                            <small id="model-help">Choose the desired language model for conversation</small>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <label for="temperature">
+                                Creativity
+                                <span id="temperature-value">0.7</span>
+                            </label>
+                            <input type="range" id="temperature" class="settings-slider" 
+                                   min="0" max="1" step="0.1" value="0.7"
+                                   aria-describedby="temperature-help">
+                            <small id="temperature-help">Lower values = more precise, higher values = more creative</small>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- TTS Settings -->
+                <section class="settings-section" aria-labelledby="tts-settings">
+                    <button class="settings-header" id="tts-settings" aria-expanded="false" data-target="tts-content">
+                        <span class="settings-icon">🔊</span>
+                        <span>Text-to-Speech (TTS)</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="tts-content">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="enable-tts" class="settings-checkbox" checked 
+                                   aria-describedby="tts-enable-help">
+                            <label for="enable-tts">Enable TTS</label>
+                        </div>
+                        <small id="tts-enable-help">Enables automatic speech output for AI responses</small>
+                        
+                        <div class="select-container">
+                            <label for="voice-select">Voice</label>
+                            <select id="voice-select" class="settings-select">
+                                <option value="">Loading voices...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <label for="rate">
+                                Speed
+                                <span id="rate-value">1.0</span>
+                            </label>
+                            <input type="range" id="rate" class="settings-slider" 
+                                   min="0.5" max="2" step="0.1" value="1.0">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <label for="pitch">
+                                Pitch
+                                <span id="pitch-value">1.0</span>
+                            </label>
+                            <input type="range" id="pitch" class="settings-slider" 
+                                   min="0.5" max="2" step="0.1" value="1.0">
+                            <small>Pitch effect may vary depending on voice</small>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Speech Recognition -->
+                <section class="settings-section" aria-labelledby="speech-settings">
+                    <button class="settings-header" id="speech-settings" aria-expanded="false" data-target="speech-content">
+                        <span class="settings-icon">🎤</span>
+                        <span>Speech Recognition</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="speech-content">
+                        <div class="select-container">
+                            <label for="speech-language">Recognition Language</label>
+                            <select id="speech-language" class="settings-select">
+                                <option value="de-DE">🇩🇪 Deutsch</option>
+                                <option value="en-US">🇺🇸 English (US)</option>
+                                <option value="en-GB">🇬🇧 English (UK)</option>
+                                <option value="fr-FR">🇫🇷 Français</option>
+                                <option value="es-ES">🇪🇸 Español</option>
+                                <option value="it-IT">🇮🇹 Italiano</option>
+                                <option value="pt-PT">🇵🇹 Português</option>
+                                <option value="nl-NL">🇳🇱 Nederlands</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Avatar Settings -->
+                <section class="settings-section" aria-labelledby="avatar-settings">
+                    <button class="settings-header" id="avatar-settings" aria-expanded="false" data-target="avatar-content">
+                        <span class="settings-icon">👤</span>
+                        <span>Avatar Settings</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="avatar-content">
+                        <!-- User Avatar -->
+                        <div class="avatar-setting">
+                            <label for="user-avatar-upload">Your Avatar</label>
+                            <div class="avatar-preview" role="img" aria-label="Your Avatar Preview">
+                                <img id="user-avatar-preview" src="" alt="Your Avatar" class="avatar-image">
+                                <div class="avatar-placeholder">U</div>
+                            </div>
+                            <input type="file" id="user-avatar-upload" accept="image/*" style="display: none;" 
+                                   aria-describedby="user-avatar-help">
+                            <div class="mt-2">
+                                <button id="user-avatar-btn" class="avatar-upload-btn mr-2">Change Avatar</button>
+                                <button id="user-avatar-reset" class="avatar-reset-btn">Reset</button>
+                            </div>
+                            <small id="user-avatar-help">Choose a profile picture for your messages</small>
+                        </div>
+                        
+                        <!-- AI Avatar -->
+                        <div class="avatar-setting">
+                            <label for="ai-avatar-upload">AI Avatar</label>
+                            <div class="avatar-preview" role="img" aria-label="AI Avatar Preview">
+                                <img id="ai-avatar-preview" src="" alt="AI Avatar" class="avatar-image">
+                                <div class="avatar-placeholder">AI</div>
+                            </div>
+                            <input type="file" id="ai-avatar-upload" accept="image/*" style="display: none;"
+                                   aria-describedby="ai-avatar-help">
+                            <div class="mt-2">
+                                <button id="ai-avatar-btn" class="avatar-upload-btn mr-2">Change Avatar</button>
+                                <button id="ai-avatar-reset" class="avatar-reset-btn">Reset</button>
+                            </div>
+                            <small id="ai-avatar-help">Choose an avatar for AI responses</small>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Appearance -->
+                <section class="settings-section" aria-labelledby="appearance-settings">
+                    <button class="settings-header" id="appearance-settings" aria-expanded="false" data-target="appearance-content">
+                        <span class="settings-icon">🎨</span>
+                        <span>Appearance</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="appearance-content">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="dark-mode" class="settings-checkbox" checked>
+                            <label for="dark-mode">Dark Mode</label>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- System Prompt -->
+                <section class="settings-section" aria-labelledby="prompt-settings">
+                    <button class="settings-header" id="prompt-settings" aria-expanded="false" data-target="prompt-content">
+                        <span class="settings-icon">📝</span>
+                        <span>System Prompt</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="prompt-content">
+                        <label for="system-prompt" class="sr-only">Enter System Prompt</label>
+                        <textarea id="system-prompt" class="settings-textarea" 
+                                  placeholder="Enter the system prompt here..."
+                                  aria-describedby="prompt-help">You are a helpful assistant.</textarea>
+                        <small id="prompt-help">Defines the basic behavior of the AI</small>
+                    </div>
+                </section>
+                
+                <!-- Chat History -->
+                <section class="settings-section" aria-labelledby="history-settings">
+                    <button class="settings-header" id="history-settings" aria-expanded="false" data-target="history-content">
+                        <span class="settings-icon">💭</span>
+                        <span>Chat History</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="history-content">
+                        <div class="slider-container">
+                            <label for="context-length">
+                                Messages in Context
+                                <span id="context-length-value">10</span>
+                            </label>
+                            <input type="range" id="context-length" class="settings-slider" 
+                                   min="0" max="200" step="1" value="10"
+                                   aria-describedby="context-help">
+                            <small id="context-help">
+                                Number of past messages for context (0 = none, max. 200).
+                                Very long histories can affect response time.
+                            </small>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Actions -->
+                <section class="settings-section" aria-labelledby="actions-settings">
+                    <button class="settings-header" id="actions-settings" aria-expanded="false" data-target="actions-content">
+                        <span class="settings-icon">🔧</span>
+                        <span>Actions</span>
+                        <span class="chevron">▶</span>
+                    </button>
+                    
+                    <div class="settings-content collapsed" id="actions-content">
+                        <button id="clear-chat-btn" class="action-button" aria-describedby="clear-help">
+                            🗑️ Clear Chat
+                        </button>
+                        <small id="clear-help">Permanently deletes the entire chat history</small>
+                    </div>
+                </section>
+            </div>
+        </aside>
+        
+        <!-- =============================================== -->
+        <!-- MAIN CHAT AREA -->
+        <!-- =============================================== -->
+        <main class="main-content" role="main">
+            <!-- Chat Header -->
+            <header class="chat-header">
+                <h1>✨ Astroburner's Magic Tool</h1>
+                <button id="toggle-sidebar-btn" class="icon-button" 
+                        aria-label="Toggle sidebar"
+                        aria-expanded="true">
+                    <span class="toggle-icon" aria-hidden="true"></span>
+                </button>
+            </header>
+            
+            <!-- Chat Messages Container -->
+            <section id="message-container" class="message-container" 
+                     role="log" aria-live="polite" aria-label="Chat messages">
+                <!-- Welcome Message -->
+                <div class="welcome-message">
+                    <h2>Welcome to Astroburner's Magic Tool!</h2>
+                    <p>🤖 Select a model in the settings.</p>
+                    <p>🗣️ Select a language in the settings.</p>
+                    <p>🔊 Select a TTS in the settings and start the conversation.</p>
+                    <p><strong>Tip:</strong> Use <code>/remember</code> to save important information!</p>
+                </div>
+            </section>
+            
+            <!-- TTS Controls -->
+            <div id="tts-controls" class="tts-controls" aria-live="polite">
+                <button id="stop-tts-btn" class="action-button stop-button" 
+                        style="display: none;" aria-label="Stop speech output">
+                    <span class="stop-icon" aria-hidden="true"></span>
+                    Stop TTS
+                </button>
+            </div>
+            
+            <!-- Image Preview Container -->
+            <div id="image-preview-container" class="image-preview-container" 
+                 style="display: none;" aria-label="Image Preview">
+                <!-- Preview images will be inserted here -->
+            </div>
+            
+            <!-- Input Area -->
+            <section class="input-container" role="region" aria-label="Enter message">
+                <label for="user-input" class="sr-only">Enter message</label>
+                <textarea id="user-input" class="user-input" 
+                          placeholder="Write a message..." 
+                          rows="1" aria-describedby="input-help"></textarea>
+                
+                <div class="input-buttons">
+                    <!-- Image Upload -->
+                    <input type="file" id="image-upload" accept="image/*" 
+                           style="display: none;" multiple aria-describedby="image-help">
+                    <button id="image-upload-btn" class="icon-button" 
+                            aria-label="Upload images" title="Upload images">
+                        <span class="image-icon" aria-hidden="true">📷</span>
+                    </button>
+                    
+                    <!-- Voice Input -->
+                    <button id="mic-btn" class="icon-button" 
+                            aria-label="Start voice input" title="Voice input">
+                        <span class="mic-icon" aria-hidden="true"></span>
+                    </button>
+                    
+                    <!-- Send Button -->
+                    <button id="send-btn" class="send-button" 
+                            aria-label="Send message" title="Send">
+                        <span class="send-icon" aria-hidden="true"></span>
+                    </button>
+                </div>
+                
+                <!-- Hidden Help Text -->
+                <div class="sr-only">
+                    <div id="input-help">
+                        Press Enter to send, Shift+Enter for new line. 
+                        You can also add images via drag & drop.
+                    </div>
+                    <div id="image-help">
+                        Supported formats: JPG, PNG, GIF, WebP
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- =============================================== -->
+    <!-- NOTIFICATION & STATUS OVERLAYS -->
+    <!-- =============================================== -->
+    
+    <!-- Notifications -->
+    <div id="notification-container" class="notification-container" 
+         role="region" aria-live="assertive" aria-label="Notifications">
+        <!-- Notifications will be inserted here -->
+    </div>
+    
+    <!-- Speech Recognition Status -->
+    <div id="speech-status" class="speech-status" 
+         role="status" aria-live="polite" aria-label="Speech recognition status">
+        <div class="pulse-animation" aria-hidden="true"></div>
+        <span>Listening...</span>
+    </div>
+    
+    <!-- =============================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- =============================================== -->
+    
+    <!-- Load scripts in correct order -->
+    <script src="js/services/api-client.js"></script>
+    <script src="js/services/tts-controller.js"></script>
+    <script src="js/services/memory-manager.js"></script>
+    <script src="js/services/chat-manager.js"></script>
+    <script src="js/ui/theme-manager.js"></script>
+    <script src="js/ui/ui-controller.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Collapsible Sections Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Collapsible sections functionality
+            const headers = document.querySelectorAll('.settings-header');
+            
+            headers.forEach(header => {
+                header.addEventListener('click', function() {
+                    const target = document.getElementById(this.dataset.target);
+                    const chevron = this.querySelector('.chevron');
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    
+                    // Toggle this section
+                    if (isExpanded) {
+                        this.setAttribute('aria-expanded', 'false');
+                        target.classList.add('collapsed');
+                        chevron.textContent = '▶';
+                    } else {
+                        this.setAttribute('aria-expanded', 'true');
+                        target.classList.remove('collapsed');
+                        chevron.textContent = '▼';
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- Error Handling -->
+    <script>
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            
+            // Show user-friendly error message
+            const notification = document.createElement('div');
+            notification.className = 'notification error';
+            notification.textContent = 'An unexpected error occurred. Please reload the page.';
+            
+            const container = document.getElementById('notification-container');
+            if (container) {
+                container.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            }
+        });
+        
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            if ('performance' in window) {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log(`Page loaded in ${loadTime}ms`);
+            }
+        });
+    </script>
+</body>
+</html>
