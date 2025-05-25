@@ -1,26 +1,30 @@
-# Core Flask Framework
-Flask==2.0.1
+# Core Flask Framework - Fixierte Versionen für Kompatibilität
+Flask==2.3.3
 Flask-CORS==4.0.0
+Werkzeug==2.3.7
 
 # HTTP Requests
-requests==2.28.1
+requests==2.31.0
 
 # Text-to-Speech
 edge-tts==6.1.7
+
+# File and Path Handling
+pathlib2==2.3.7
+
+# Type Hints
+typing-extensions>=4.0.0
+
+# Flask Dependencies - Kompatible Versionen
+click>=8.0.0,<9.0.0
+itsdangerous>=2.0.0,<3.0.0
+Jinja2>=3.0.0,<4.0.0
+MarkupSafe>=2.0.0,<3.0.0
 
 # Optional TTS Dependencies (install if needed)
 # torch>=1.9.0
 # whisper-tts
 # TTS>=0.13.0
 
-# File and Path Handling
-pathlib2==2.3.7
-
-# JSON and Data Processing
-# (json is built-in)
-
 # Logging and Utilities
 # (logging, os, time, asyncio are built-in)
-
-# Type Hints
-typing-extensions>=4.0.0

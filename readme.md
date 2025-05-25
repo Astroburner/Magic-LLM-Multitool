@@ -2,7 +2,7 @@
 
 A modern, feature-rich web interface for Ollama with memory system, TTS, speech recognition, and multimodal support.
 
-![Ollama UI Screenshot](https://via.placeholder.com/800x400?text=Ollama+UI+Screenshot)
+![Ollama UI Screenshot](screenshots/main-interface.png)
 
 ## ✨ Features
 
