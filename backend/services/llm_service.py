@@ -35,7 +35,8 @@ def query_ollama(
     prompt: str, 
     system_prompt: str = "", 
     temperature: float = 0.7,
-    context: Optional[List[Dict[str, str]]] = None
+    context: Optional[List[Dict[str, str]]] = None,
+    images: Optional[List[Dict[str, str]]] = None  # ⭐ NEU: Bilder-Parameter
 ) -> str:
     """
     Eine Anfrage an das Ollama-Modell stellen.
@@ -46,6 +47,7 @@ def query_ollama(
         system_prompt (str, optional): Systemaufforderung für das Modell
         temperature (float, optional): Temperaturparameter für die Antwortgenerierung
         context (List[Dict[str, str]], optional): Konversationskontext
+        images (List[Dict[str, str]], optional): Bilder für multimodale Modelle
         
     Returns:
         str: Antwort des Modells
@@ -67,8 +69,22 @@ def query_ollama(
         if system_prompt:
             request_data['system'] = system_prompt
         
+        # ⭐ NEU: Bilder hinzufügen für multimodale Modelle
+        if images and len(images) > 0:
+            request_data['images'] = []
+            for image in images:
+                # Base64-Daten direkt verwenden (ohne data:image/... Präfix)
+                image_data = image.get('data', '')
+                if image_data:
+                    request_data['images'].append(image_data)
+            logger.info(f"Bilder hinzugefügt: {len(request_data['images'])} Bilder für multimodales Modell")
+        
         logger.info(f"Sende Anfrage an Ollama: {model_name}")
-        logger.debug(f"Anfragedaten: {json.dumps(request_data, indent=2)}")
+        # Debug-Ausgabe OHNE Bilder (zu groß für Logs)
+        debug_data = {k: v for k, v in request_data.items() if k != 'images'}
+        if 'images' in request_data:
+            debug_data['images'] = f"[{len(request_data['images'])} images - hidden from logs]"
+        logger.debug(f"Anfragedaten: {json.dumps(debug_data, indent=2, default=str)}")
         
         response = requests.post(
             f"{config.OLLAMA_BASE_URL}/api/generate",

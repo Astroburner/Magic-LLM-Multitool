@@ -58,6 +58,7 @@ def chat():
         system_prompt = data.get('system_prompt', '')
         temperature = float(data.get('temperature', config.DEFAULT_TEMPERATURE))
         context = data.get('context', [])
+        images = data.get('images', [])  # ⭐ Bilder aus Frontend
         
         # ⭐ Memory-Kontext laden und intelligent verarbeiten
         from services.memory_service import get_memories
@@ -88,7 +89,7 @@ ANWEISUNG: Diese Informationen sind Teil deines Wissens. Verwende sie natürlich
             logger.warning(f"Fehler beim Laden der Erinnerungen: {memory_error}")
         
         # LLM-Anfrage stellen
-        response = query_ollama(model, message, system_prompt, temperature, context)
+        response = query_ollama(model, message, system_prompt, temperature, context, images)
         
         # TTS aktivieren, wenn gewünscht
         audio_file = None
