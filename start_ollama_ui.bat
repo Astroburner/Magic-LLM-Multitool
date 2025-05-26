@@ -1,116 +1,116 @@
 @echo off
 REM =============================================
-REM Ollama UI - Automatischer Starter
+REM Ollama UI - Automatic Starter
 REM =============================================
 
 echo.
 echo ========================================
-echo   🚀 Starte Ollama UI
+echo   🚀 Starting Ollama UI
 echo ========================================
 echo.
 
-REM Farbige Ausgabe aktivieren
+REM Enable colored output
 for /f "tokens=*" %%i in ('echo prompt $E^|"%SystemRoot%\system32\cmd.exe"') do set "ESC=%%i"
 
-REM Titel setzen
+REM Set window title
 title Ollama UI Starter
 
-REM Prüfe ob wir im richtigen Verzeichnis sind
+REM Check if we're in the correct directory
 if not exist "backend\app.py" (
-    echo %ESC%[91m❌ Fehler: Nicht im Ollama UI Hauptverzeichnis!%ESC%[0m
-    echo %ESC%[93m💡 Bitte die Batch-Datei im ollama-ui\ Ordner ausführen%ESC%[0m
+    echo %ESC%[91m❌ Error: Not in Ollama UI main directory!%ESC%[0m
+    echo %ESC%[93m💡 Please run the batch file in the ollama-ui\ folder%ESC%[0m
     echo.
     pause
     exit /b 1
 )
 
-echo %ESC%[96m🔍 Prüfe Ollama-Status...%ESC%[0m
+echo %ESC%[96m🔍 Checking Ollama status...%ESC%[0m
 
-REM Prüfe ob Ollama läuft
+REM Check if Ollama is running
 curl -s http://localhost:11434/api/tags >nul 2>&1
 if %errorlevel% neq 0 (
-    echo %ESC%[93m⚠️  Ollama läuft nicht - starte Ollama...%ESC%[0m
+    echo %ESC%[93m⚠️  Ollama is not running - starting Ollama...%ESC%[0m
     echo.
     
-    REM Starte Ollama im Hintergrund
+    REM Start Ollama in background
     start /min "Ollama Server" ollama serve
     
-    REM Warte 3 Sekunden
+    REM Wait 3 seconds
     timeout /t 3 /nobreak >nul
     
-    REM Prüfe erneut
+    REM Check again
     curl -s http://localhost:11434/api/tags >nul 2>&1
     if %errorlevel% neq 0 (
-        echo %ESC%[91m❌ Ollama konnte nicht gestartet werden!%ESC%[0m
-        echo %ESC%[93m💡 Bitte installiere Ollama von: https://ollama.ai%ESC%[0m
+        echo %ESC%[91m❌ Could not start Ollama!%ESC%[0m
+        echo %ESC%[93m💡 Please install Ollama from: https://ollama.ai%ESC%[0m
         echo.
         pause
         exit /b 1
     )
 )
 
-echo %ESC%[92m✅ Ollama läuft%ESC%[0m
+echo %ESC%[92m✅ Ollama is running%ESC%[0m
 
-REM Wechsle ins Backend-Verzeichnis
+REM Change to backend directory
 cd /d "%~dp0backend"
 
-echo %ESC%[96m🐍 Aktiviere Python Virtual Environment...%ESC%[0m
+echo %ESC%[96m🐍 Activating Python Virtual Environment...%ESC%[0m
 
-REM Prüfe ob venv existiert
+REM Check if venv exists
 if not exist "venv\" (
-    echo %ESC%[93m⚠️  Virtual Environment nicht gefunden - erstelle es...%ESC%[0m
+    echo %ESC%[93m⚠️  Virtual Environment not found - creating it...%ESC%[0m
     python -m venv venv
     if %errorlevel% neq 0 (
-        echo %ESC%[91m❌ Fehler beim Erstellen des Virtual Environment!%ESC%[0m
-        echo %ESC%[93m💡 Ist Python installiert? Prüfe: python --version%ESC%[0m
+        echo %ESC%[91m❌ Error creating Virtual Environment!%ESC%[0m
+        echo %ESC%[93m💡 Is Python installed? Check: python --version%ESC%[0m
         echo.
         pause
         exit /b 1
     )
-    echo %ESC%[92m✅ Virtual Environment erstellt%ESC%[0m
+    echo %ESC%[92m✅ Virtual Environment created%ESC%[0m
 )
 
-REM Aktiviere Virtual Environment
+REM Activate Virtual Environment
 call venv\Scripts\activate.bat
 if %errorlevel% neq 0 (
-    echo %ESC%[91m❌ Fehler beim Aktivieren des Virtual Environment!%ESC%[0m
+    echo %ESC%[91m❌ Error activating Virtual Environment!%ESC%[0m
     echo.
     pause
     exit /b 1
 )
 
-echo %ESC%[92m✅ Virtual Environment aktiviert%ESC%[0m
+echo %ESC%[92m✅ Virtual Environment activated%ESC%[0m
 
-REM Prüfe ob Dependencies installiert sind
+REM Check if dependencies are installed
 if not exist "venv\Lib\site-packages\flask\" (
-    echo %ESC%[96m📦 Installiere Dependencies...%ESC%[0m
+    echo %ESC%[96m📦 Installing dependencies...%ESC%[0m
     pip install -r requirements.txt
     if %errorlevel% neq 0 (
-        echo %ESC%[91m❌ Fehler beim Installieren der Dependencies!%ESC%[0m
+        echo %ESC%[91m❌ Error installing dependencies!%ESC%[0m
         echo.
         pause
         exit /b 1
     )
-    echo %ESC%[92m✅ Dependencies installiert%ESC%[0m
+    echo %ESC%[92m✅ Dependencies installed%ESC%[0m
 )
 
-echo %ESC%[96m🚀 Starte Ollama UI Backend...%ESC%[0m
+echo %ESC%[96m🚀 Starting Ollama UI Backend...%ESC%[0m
 echo.
 echo %ESC%[92m========================================%ESC%[0m
-echo %ESC%[92m  ✨ Ollama UI ist bereit!%ESC%[0m
+echo %ESC%[92m  ✨ Ollama UI is ready!%ESC%[0m
 echo %ESC%[92m  🌐 URL: http://localhost:5000%ESC%[0m
-echo %ESC%[92m  🛑 Stoppen: Strg+C%ESC%[0m
+echo %ESC%[92m  🛑 Stop: Ctrl+C%ESC%[0m
 echo %ESC%[92m========================================%ESC%[0m
 echo.
 
-REM Öffne Browser nach 2 Sekunden
+REM Open browser after 2 seconds
 start "" timeout /t 2 /nobreak >nul && start http://localhost:5000
 
-REM Starte Flask App
+REM Start Flask App
 python app.py
 
-REM Falls das Script hier ankommt, ist etwas schief gelaufen
+REM If we reach here, something went wrong
 echo.
-echo %ESC%[93m⚠️  Backend wurde beendet%ESC%[0m
+echo %ESC%[93m⚠️  Backend was terminated%ESC%[0m
 echo.
 pause

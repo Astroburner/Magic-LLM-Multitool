@@ -1,8 +1,8 @@
-# 🚀 Ollama UI - Advanced Chat Interface
+# 🚀 Magic LLM Multitool - Advanced Chat Interface
 
 A modern, feature-rich web interface for Ollama with memory system, TTS, speech recognition, and multimodal support.
 
-![Ollama UI Screenshot](screenshots/main-interface.png)
+![Magic LLM Multitool Screenshot](screenshots/main-interface.png)
 
 ## ✨ Features
 
@@ -217,9 +217,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ollama-ui/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ollama-ui/discussions)
-- **Email**: your.email@example.com
+- **Issues**: [GitHub Issues]
+- **Discussions**: [GitHub Discussions]
+- **Email**: via github
+
+## 🖼️ UI-images
+![Magic LLM Multitool UI-01](screenshots/interface_01.png)
+![Magic LLM Multitool UI-02](screenshots/interface_02.png)
 
 ---
 
