@@ -22,6 +22,11 @@ class UIController {
     this.imageUploadBtn = document.getElementById('image-upload-btn');
     this.imageUpload = document.getElementById('image-upload');
     this.imagePreviewContainer = document.getElementById('image-preview-container');
+	
+	// ⭐ File-Upload Elemente
+	this.fileUploadBtn = document.getElementById('file-upload-btn');
+	this.fileUpload = document.getElementById('file-upload');
+	this.filePreviewContainer = document.getElementById('file-preview-container');
     
     // ⭐ Avatar-Elemente
     this.userAvatarBtn = document.getElementById('user-avatar-btn');
@@ -56,7 +61,8 @@ class UIController {
     this.isProcessing = false;
     this.isSpeechRecognitionActive = false;
     this.selectedImages = []; // Array für ausgewählte Bilder
-    
+    this.selectedFiles = []; // ⭐ Array für ausgewählte Dateien
+	
     // ⭐ Avatar-Daten
     this.userAvatar = null;
     this.aiAvatar = null;
@@ -88,6 +94,10 @@ class UIController {
     this.imageUploadBtn.addEventListener('click', () => this.imageUpload.click());
     this.imageUpload.addEventListener('change', (e) => this.handleImageSelection(e.target.files));
     
+	// ⭐ File-Upload Event-Listener
+	this.fileUploadBtn.addEventListener('click', () => this.fileUpload.click());
+	this.fileUpload.addEventListener('change', (e) => this.handleFileSelection(e.target.files));
+	
     // Drag & Drop Support
     this.userInput.addEventListener('dragover', (e) => this.handleDragOver(e));
     this.userInput.addEventListener('drop', (e) => this.handleDrop(e));
@@ -282,6 +292,7 @@ class UIController {
     
     // Benutzeränderungen anzeigen (mit Bildern falls vorhanden)
     this.addMessageToUI('user', message, this.selectedImages);
+	this.showTypingIndicator();
     
     // ⭐ Unterschiedliche Placeholder für Memory-Befehle
     if (isMemoryCmd) {
@@ -332,7 +343,12 @@ class UIController {
       }
       
       // Antwort anzeigen
-      this.addMessageToUI('assistant', response.response);
+	// ⭐ Antwort mit Reasoning anzeigen
+		if (response.has_reasoning) {
+		  this.addReasoningMessageToUI(response.response, response.reasoning);
+		} else {
+		  this.addMessageToUI('assistant', response.response);
+		}
       
       // Audio abspielen, wenn TTS aktiviert ist
       if (enableTts && response.audio_file) {
@@ -347,6 +363,7 @@ class UIController {
       this.userInput.placeholder = 'Schreibe eine Nachricht...';
       this.sendBtn.disabled = false;
       this.userInput.focus();
+	  this.hideTypingIndicator();
       
       // Bilder nach dem Senden löschen
       this.clearImages();
@@ -1088,4 +1105,336 @@ class UIController {
     
     this.showNotification('🔄 System wurde zurückgesetzt', 'info');
   }
+  /**
+ * ⭐ FILE-UPLOAD METHODEN
+ */
+
+/**
+ * Datei-Auswahl verarbeiten.
+ */
+handleFileSelection(files) {
+  Array.from(files).forEach(file => {
+    // Prüfe Dateigröße (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      this.showError(`File too large: ${file.name} (max 10MB)`);
+      return;
+    }
+    
+    this.selectedFiles.push(file);
+    this.createFilePreview(file);
+  });
+  
+  if (this.selectedFiles.length > 0) {
+    this.filePreviewContainer.style.display = 'flex';
+  }
+}
+
+/**
+ * Datei-Vorschau erstellen.
+ */
+createFilePreview(file) {
+  const previewDiv = document.createElement('div');
+  previewDiv.className = 'file-preview-item';
+  
+  // Dateigröße formatieren
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+  
+  // Dateierweiterung extrahieren
+  const getFileExtension = (filename) => {
+    return filename.split('.').pop().toUpperCase();
+  };
+  
+  previewDiv.innerHTML = `
+    <div class="file-info">
+      <div class="file-name">${file.name}</div>
+      <div class="file-details">
+        <span class="file-type">${getFileExtension(file.name)}</span>
+        <span>${formatFileSize(file.size)}</span>
+      </div>
+    </div>
+    <button class="remove-file-btn" onclick="window.uiController.removeFile('${file.name}')" title="Remove file">×</button>
+  `;
+  
+  this.filePreviewContainer.appendChild(previewDiv);
+  
+  // Analyze-Button hinzufügen (nur einmal)
+  if (!this.filePreviewContainer.querySelector('.analyze-files-btn')) {
+    const analyzeBtn = document.createElement('button');
+    analyzeBtn.className = 'analyze-files-btn';
+    analyzeBtn.textContent = '🔍 Analyze Files';
+    analyzeBtn.onclick = () => this.analyzeFiles();
+    this.filePreviewContainer.appendChild(analyzeBtn);
+  }
+}
+
+/**
+ * Datei aus Vorschau entfernen.
+ */
+removeFile(fileName) {
+  // Datei aus Array entfernen
+  this.selectedFiles = this.selectedFiles.filter(file => file.name !== fileName);
+  
+  // Vorschau-Element entfernen
+  const previewItems = this.filePreviewContainer.querySelectorAll('.file-preview-item');
+  previewItems.forEach(item => {
+    const fileNameEl = item.querySelector('.file-name');
+    if (fileNameEl && fileNameEl.textContent === fileName) {
+      item.remove();
+    }
+  });
+  
+  // Container verstecken wenn keine Dateien mehr da sind
+  if (this.selectedFiles.length === 0) {
+    this.filePreviewContainer.style.display = 'none';
+  }
+}
+
+/**
+ * Dateien analysieren.
+ */
+async analyzeFiles() {
+  if (this.selectedFiles.length === 0) {
+    this.showError('No files selected for analysis');
+    return;
+  }
+  
+  try {
+    // Dateien für Upload vorbereiten
+    const fileData = await this.prepareFilesForUpload();
+    
+    // Nachricht mit Dateien senden
+    const message = `Please analyze the uploaded files and provide insights about their content, structure, and any important information.`;
+    
+    // Temporär die normale sendMessage verwenden, aber mit Files
+    await this.sendMessageWithFiles(message, fileData);
+    
+  } catch (error) {
+    console.error('Error analyzing files:', error);
+    this.showError('Error analyzing files: ' + error.message);
+  }
+}
+
+/**
+ * Dateien für Upload vorbereiten.
+ */
+async prepareFilesForUpload() {
+  const filePromises = this.selectedFiles.map(file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: e.target.result.split(',')[1] // Base64 ohne "data:..." Teil
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  });
+  
+  return Promise.all(filePromises);
+}
+
+/**
+ * Nachricht mit Dateien senden.
+ */
+async sendMessageWithFiles(message, fileData) {
+  this.isProcessing = true;
+  this.userInput.placeholder = 'Analyzing files...';
+  this.sendBtn.disabled = true;
+  
+  // Benutzer-Nachricht anzeigen
+  this.addMessageToUI('user', message);
+  this.showTypingIndicator();
+  
+  try {
+    const selectedModel = this.modelSelect.value || 'llama2';
+    const systemPromptText = this.systemPrompt.value;
+    const temperature = parseFloat(this.temperatureSlider.value);
+    const enableTts = this.enableTts.checked;
+    const voice = this.voiceSelect.value || 'de-DE-KatjaNeural';
+    const rate = this.rateSlider.value;
+    const pitch = this.pitchSlider.value;
+    const contextLength = parseInt(this.contextLengthSlider.value);
+    
+    // Chat-Kontext abrufen
+    const context = this.chatManager.getChatContext(contextLength);
+    
+    // Backend-Anfrage mit Dateien
+    const response = await this.chatManager.sendMessage({
+      model: selectedModel,
+      message,
+      system_prompt: systemPromptText,
+      temperature,
+      enable_tts: enableTts,
+      voice,
+      rate,
+      pitch,
+      context,
+      files: fileData // ⭐ Dateien hinzufügen
+    });
+   
+   
+    // Audio abspielen, wenn TTS aktiviert ist
+    if (enableTts && response.audio_file) {
+      this.ttsController.playAudio(response.audio_file);
+    }
+    
+  } catch (error) {
+    console.error('Error sending message with files:', error);
+    this.showError('Error analyzing files: ' + error.message);
+  } finally {
+    this.isProcessing = false;
+    this.userInput.placeholder = 'Write a message...';
+    this.sendBtn.disabled = false;
+    
+    // Dateien nach dem Senden löschen
+    this.hideTypingIndicator();
+	this.clearFiles();
+  }
+}
+
+/**
+ * Alle Dateien löschen.
+ */
+clearFiles() {
+  this.selectedFiles = [];
+  this.filePreviewContainer.innerHTML = '';
+  this.filePreviewContainer.style.display = 'none';
+}
+/**
+ * ⭐ TYPING INDICATOR METHODEN
+ */
+
+/**
+ * Typing Indicator anzeigen.
+ */
+showTypingIndicator() {
+  // Remove existing typing indicator
+  this.hideTypingIndicator();
+  
+  const typingEl = document.createElement('div');
+  typingEl.classList.add('message', 'assistant-message', 'typing-indicator-message');
+  typingEl.id = 'typing-indicator';
+  
+  // Avatar für Typing Indicator
+  const avatarEl = document.createElement('div');
+  avatarEl.classList.add('typing-indicator-avatar');
+  
+  if (this.aiAvatar) {
+    // AI Avatar mit Bild
+    const imgEl = document.createElement('img');
+    imgEl.src = this.aiAvatar;
+    imgEl.alt = 'AI Avatar';
+    avatarEl.appendChild(imgEl);
+  } else {
+    // Fallback Text-Avatar
+    avatarEl.textContent = 'AI';
+  }
+  
+  // Typing Content
+  const contentEl = document.createElement('div');
+  contentEl.classList.add('typing-indicator');
+  contentEl.innerHTML = `
+    <div class="typing-indicator-content">
+      <p class="typing-text">is typing...</p>
+      <div class="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  `;
+  
+  typingEl.appendChild(avatarEl);
+  typingEl.appendChild(contentEl);
+  
+  this.messageContainer.appendChild(typingEl);
+  
+  // Zum Ende scrollen
+  this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+}
+
+/**
+ * Typing Indicator entfernen.
+ */
+hideTypingIndicator() {
+  const existingIndicator = document.getElementById('typing-indicator');
+  if (existingIndicator) {
+    existingIndicator.remove();
+  }
+}
+
+/**
+ * ⭐ REASONING MESSAGE METHODEN
+ */
+
+/**
+ * Reasoning-Nachricht zur UI hinzufügen.
+ */
+addReasoningMessageToUI(answer, reasoning) {
+  const messageEl = document.createElement('div');
+  messageEl.classList.add('message', 'assistant-message');
+  
+  // Avatar
+  const avatarEl = document.createElement('div');
+  avatarEl.classList.add('message-avatar');
+  
+  if (this.aiAvatar) {
+    const imgEl = document.createElement('img');
+    imgEl.src = this.aiAvatar;
+    imgEl.alt = 'AI Avatar';
+    avatarEl.appendChild(imgEl);
+  } else {
+    avatarEl.textContent = 'AI';
+  }
+  
+  messageEl.appendChild(avatarEl);
+  
+  // Message Content
+  const contentEl = document.createElement('div');
+  contentEl.classList.add('message-content');
+  
+  // Reasoning Container (aufklappbar)
+  if (reasoning) {
+    const reasoningContainer = document.createElement('div');
+    reasoningContainer.className = 'reasoning-container';
+    reasoningContainer.innerHTML = `
+      <div class="reasoning-header" onclick="this.parentElement.querySelector('.reasoning-content').classList.toggle('expanded'); this.querySelector('.reasoning-toggle').classList.toggle('expanded');">
+        <div class="reasoning-title">
+          <span class="reasoning-icon">🧠</span>
+          <span>Reasoning Process</span>
+          <span class="reasoning-badge">Click to expand</span>
+        </div>
+        <span class="reasoning-toggle">▼</span>
+      </div>
+      <div class="reasoning-content">${this.escapeHtml(reasoning)}</div>
+    `;
+    contentEl.appendChild(reasoningContainer);
+  }
+  
+  // Final Answer
+  const answerDiv = document.createElement('div');
+  const formattedAnswer = this.formatMessage(answer);
+  answerDiv.innerHTML = formattedAnswer;
+  contentEl.appendChild(answerDiv);
+  
+  messageEl.appendChild(contentEl);
+  this.messageContainer.appendChild(messageEl);
+  
+  // Zum Ende scrollen
+  this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+  
+  // Chat-Verlauf speichern (nur die Final Answer)
+  this.chatManager.addMessageToHistory('assistant', answer);
+}
+
 }

@@ -5,31 +5,28 @@ REM =============================================
 
 echo.
 echo ========================================
-echo   🚀 Starting Ollama UI
+echo   Starting Ollama UI
 echo ========================================
 echo.
-
-REM Enable colored output
-for /f "tokens=*" %%i in ('echo prompt $E^|"%SystemRoot%\system32\cmd.exe"') do set "ESC=%%i"
 
 REM Set window title
 title Ollama UI Starter
 
 REM Check if we're in the correct directory
 if not exist "backend\app.py" (
-    echo %ESC%[91m❌ Error: Not in Ollama UI main directory!%ESC%[0m
-    echo %ESC%[93m💡 Please run the batch file in the ollama-ui\ folder%ESC%[0m
+    echo [ERROR] Not in Ollama UI main directory!
+    echo [INFO] Please run the batch file in the ollama-ui\ folder
     echo.
     pause
     exit /b 1
 )
 
-echo %ESC%[96m🔍 Checking Ollama status...%ESC%[0m
+echo [*] Checking Ollama status...
 
 REM Check if Ollama is running
 curl -s http://localhost:11434/api/tags >nul 2>&1
 if %errorlevel% neq 0 (
-    echo %ESC%[93m⚠️  Ollama is not running - starting Ollama...%ESC%[0m
+    echo [WARNING] Ollama is not running - starting Ollama...
     echo.
     
     REM Start Ollama in background
@@ -41,66 +38,66 @@ if %errorlevel% neq 0 (
     REM Check again
     curl -s http://localhost:11434/api/tags >nul 2>&1
     if %errorlevel% neq 0 (
-        echo %ESC%[91m❌ Could not start Ollama!%ESC%[0m
-        echo %ESC%[93m💡 Please install Ollama from: https://ollama.ai%ESC%[0m
+        echo [ERROR] Could not start Ollama!
+        echo [INFO] Please install Ollama from: https://ollama.ai
         echo.
         pause
         exit /b 1
     )
 )
 
-echo %ESC%[92m✅ Ollama is running%ESC%[0m
+echo [OK] Ollama is running
 
 REM Change to backend directory
 cd /d "%~dp0backend"
 
-echo %ESC%[96m🐍 Activating Python Virtual Environment...%ESC%[0m
+echo [*] Activating Python Virtual Environment...
 
 REM Check if venv exists
 if not exist "venv\" (
-    echo %ESC%[93m⚠️  Virtual Environment not found - creating it...%ESC%[0m
+    echo [WARNING] Virtual Environment not found - creating it...
     python -m venv venv
     if %errorlevel% neq 0 (
-        echo %ESC%[91m❌ Error creating Virtual Environment!%ESC%[0m
-        echo %ESC%[93m💡 Is Python installed? Check: python --version%ESC%[0m
+        echo [ERROR] Error creating Virtual Environment!
+        echo [INFO] Is Python installed? Check: python --version
         echo.
         pause
         exit /b 1
     )
-    echo %ESC%[92m✅ Virtual Environment created%ESC%[0m
+    echo [OK] Virtual Environment created
 )
 
 REM Activate Virtual Environment
 call venv\Scripts\activate.bat
 if %errorlevel% neq 0 (
-    echo %ESC%[91m❌ Error activating Virtual Environment!%ESC%[0m
+    echo [ERROR] Error activating Virtual Environment!
     echo.
     pause
     exit /b 1
 )
 
-echo %ESC%[92m✅ Virtual Environment activated%ESC%[0m
+echo [OK] Virtual Environment activated
 
 REM Check if dependencies are installed
 if not exist "venv\Lib\site-packages\flask\" (
-    echo %ESC%[96m📦 Installing dependencies...%ESC%[0m
+    echo [*] Installing dependencies...
     pip install -r requirements.txt
     if %errorlevel% neq 0 (
-        echo %ESC%[91m❌ Error installing dependencies!%ESC%[0m
+        echo [ERROR] Error installing dependencies!
         echo.
         pause
         exit /b 1
     )
-    echo %ESC%[92m✅ Dependencies installed%ESC%[0m
+    echo [OK] Dependencies installed
 )
 
-echo %ESC%[96m🚀 Starting Ollama UI Backend...%ESC%[0m
+echo [*] Starting Ollama UI Backend...
 echo.
-echo %ESC%[92m========================================%ESC%[0m
-echo %ESC%[92m  ✨ Ollama UI is ready!%ESC%[0m
-echo %ESC%[92m  🌐 URL: http://localhost:5000%ESC%[0m
-echo %ESC%[92m  🛑 Stop: Ctrl+C%ESC%[0m
-echo %ESC%[92m========================================%ESC%[0m
+echo ========================================
+echo   Ollama UI is ready!
+echo   URL: http://localhost:5000
+echo   Stop: Ctrl+C
+echo ========================================
 echo.
 
 REM Open browser after 2 seconds
@@ -111,6 +108,6 @@ python app.py
 
 REM If we reach here, something went wrong
 echo.
-echo %ESC%[93m⚠️  Backend was terminated%ESC%[0m
+echo [WARNING] Backend was terminated
 echo.
 pause

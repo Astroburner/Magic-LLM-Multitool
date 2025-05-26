@@ -290,6 +290,12 @@
                 <!-- Preview images will be inserted here -->
             </div>
             
+			<!-- ⭐ HIER EINFÜGEN: File Preview Container -->
+			<div id="file-preview-container" class="file-preview-container" 
+				 style="display: none;" aria-label="File Preview">
+				<!-- Preview files will be inserted here -->
+			</div>
+			
             <!-- Input Area -->
             <section class="input-container" role="region" aria-label="Enter message">
                 <label for="user-input" class="sr-only">Enter message</label>
@@ -306,6 +312,14 @@
                         <span class="image-icon" aria-hidden="true">📷</span>
                     </button>
                     
+					<!-- File Upload -->
+					<input type="file" id="file-upload" accept=".txt,.md,.py,.js,.html,.css,.pdf,.docx,.csv,.xlsx,.json,.xml" 
+						   style="display: none;" multiple aria-describedby="file-help">
+					<button id="file-upload-btn" class="icon-button" 
+							aria-label="Upload files" title="Upload files">
+						<span class="file-icon" aria-hidden="true">📎</span>
+					</button>
+					
                     <!-- Voice Input -->
                     <button id="mic-btn" class="icon-button" 
                             aria-label="Start voice input" title="Voice input">
@@ -319,16 +333,20 @@
                     </button>
                 </div>
                 
-                <!-- Hidden Help Text -->
-                <div class="sr-only">
-                    <div id="input-help">
-                        Press Enter to send, Shift+Enter for new line. 
-                        You can also add images via drag & drop.
-                    </div>
-                    <div id="image-help">
-                        Supported formats: JPG, PNG, GIF, WebP
-                    </div>
-                </div>
+				<!-- Hidden Help Text -->
+				<div class="sr-only">
+					<div id="input-help">
+						Press Enter to send, Shift+Enter for new line. 
+						You can also add images via drag & drop.
+					</div>
+					<div id="image-help">
+						Supported formats: JPG, PNG, GIF, WebP
+					</div>
+					<!-- ⭐ NEU: File Help hinzufügen -->
+					<div id="file-help">
+						Supported formats: TXT, PDF, DOCX, CSV, JSON, and more
+					</div>
+				</div>
             </section>
         </main>
     </div>

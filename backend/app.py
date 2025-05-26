@@ -8,9 +8,10 @@ import os
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 import config
-from services.llm_service import query_ollama, get_available_models
+from services.llm_service import query_ollama, get_available_models, query_ollama_with_reasoning
 from services.tts_service import text_to_speech, get_available_voices
 from services.memory_service import save_memory, get_memories
+from services.file_service import parse_uploaded_files, format_files_for_llm
 
 ## Logging konfigurieren
 logging.basicConfig(
@@ -58,9 +59,10 @@ def chat():
         system_prompt = data.get('system_prompt', '')
         temperature = float(data.get('temperature', config.DEFAULT_TEMPERATURE))
         context = data.get('context', [])
-        images = data.get('images', [])  # ⭐ Bilder aus Frontend
+        images = data.get('images', [])
+        files = data.get('files', [])
         
-        # ⭐ Memory-Kontext laden und intelligent verarbeiten
+        # Memory-Kontext laden und intelligent verarbeiten
         from services.memory_service import get_memories
         try:
             memories = get_memories()
@@ -88,21 +90,42 @@ ANWEISUNG: Diese Informationen sind Teil deines Wissens. Verwende sie natürlich
         except Exception as memory_error:
             logger.warning(f"Fehler beim Laden der Erinnerungen: {memory_error}")
         
-        # LLM-Anfrage stellen
-        response = query_ollama(model, message, system_prompt, temperature, context, images)
+        # Dateien verarbeiten falls vorhanden
+        if files:
+            try:
+                processed_files = parse_uploaded_files(files)
+                if processed_files:
+                    file_content = format_files_for_llm(processed_files)
+                    # Datei-Inhalt an die Nachricht anhängen
+                    message = f"{message}\n\n{file_content}"
+                    logger.info(f"Dateien hinzugefügt: {len(processed_files)} Dateien verarbeitet")
+            except Exception as file_error:
+                logger.warning(f"Fehler beim Verarbeiten der Dateien: {file_error}")
+
+        # ⭐ Reasoning-LLM Support
+        reasoning_response = query_ollama_with_reasoning(model, message, system_prompt, temperature, context, images)
         
-        # TTS aktivieren, wenn gewünscht
+        # TTS aktivieren, wenn gewünscht (nur für Final Answer)
         audio_file = None
         if data.get('enable_tts', True):
             voice = data.get('voice', config.DEFAULT_TTS_VOICE)
             rate = data.get('rate', config.DEFAULT_TTS_RATE)
             pitch = data.get('pitch', config.DEFAULT_TTS_PITCH)
-            audio_file = text_to_speech(response, voice, rate, pitch)
-        
+            
+            # Nur die finale Antwort für TTS verwenden
+            tts_text = reasoning_response['answer']
+            audio_file = text_to_speech(tts_text, voice, rate, pitch)
+            
+            if reasoning_response['has_reasoning']:
+                logger.info("Reasoning-LLM Response - TTS nur für Final Answer")
+
         return jsonify({
-            "response": response,
+            "response": reasoning_response['answer'],
+            "reasoning": reasoning_response['reasoning'],
+            "has_reasoning": reasoning_response['has_reasoning'],
             "audio_file": audio_file
         })
+        
     except Exception as e:
         logger.error(f"Fehler bei der Chat-Verarbeitung: {e}")
         return jsonify({"error": str(e)}), 500

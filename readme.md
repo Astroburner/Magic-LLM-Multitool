@@ -7,32 +7,45 @@ A modern, feature-rich web interface for Ollama with memory system, TTS, speech 
 ## ✨ Features
 
 ### 🤖 **AI Chat**
-- **Multiple LLM Models** - Support for all Ollama models
+- **Multiple LLM Models** - Support for all Ollama models including vision and reasoning models
 - **Real-time Chat** - Fast, responsive conversations  
 - **Context Memory** - Maintains conversation history
 - **Custom System Prompts** - Personalize AI behavior
+- **Multimodal Support** - Vision models (LLaVA, llama3.2-vision) for image analysis
+- **Reasoning Models** - Special support for reasoning LLMs with collapsible thinking process
 
 ### 🧠 **Long-term Memory System**
 - **Smart Memory Commands** - `/remember`, `/memories`, natural language
+- **Intelligent Processing** - AI formats and contextualizes memories
 - **Persistent Storage** - JSON-based memory with timestamps
-- **Intelligent Integration** - AI naturally incorporates memories
+- **Natural Integration** - AI incorporates memories conversationally
 - **Context-aware Responses** - Remembers important information across sessions
+
+### 📁 **File Upload & Analysis**
+- **Multiple File Types** - TXT, PDF, DOCX, CSV, XLSX, JSON, XML, and more
+- **Intelligent Parsing** - Automatic content extraction from documents
+- **File Preview** - Visual file management with size and type info
+- **Drag & Drop Support** - Easy file uploading
+- **Analysis Button** - Dedicated "Analyze Files" functionality
 
 ### 🔊 **Text-to-Speech (TTS)**
 - **117+ Voices** - Microsoft Edge TTS integration
 - **Multi-language Support** - German, English, French, Spanish, and more
 - **Adjustable Speed & Pitch** - Customize voice output
 - **Real-time Audio** - Instant speech synthesis
+- **Smart TTS** - Only final answers are spoken (reasoning stays silent)
 
 ### 🎤 **Speech Recognition**
 - **Voice Input** - Browser-based speech-to-text
 - **Multi-language Recognition** - 8+ language support
 - **Visual Feedback** - Live recording indicator
+- **Auto-send** - Automatic message sending after recognition
 
-### 🖼️ **Multimodal Support**
+### 🖼️ **Vision & Multimodal**
 - **Image Upload** - Drag & drop or click to upload
-- **Vision Models** - Support for LLaVA and multimodal models
+- **Vision Models** - Support for LLaVA, llama3.2-vision, and other multimodal models
 - **Image Preview** - See uploaded images before sending
+- **Image Analysis** - AI can describe, analyze, and answer questions about images
 
 ### 🎨 **Modern UI/UX**
 - **Dark/Light Mode** - Elegant theme switching
@@ -40,6 +53,8 @@ A modern, feature-rich web interface for Ollama with memory system, TTS, speech 
 - **Custom Avatars** - Personalize user and AI avatars
 - **Collapsible Settings** - Clean, organized interface
 - **Real-time Updates** - Live status indicators
+- **Typing Indicators** - Shows when AI is processing
+- **Reasoning Blocks** - Expandable thinking process for reasoning models
 
 ## 🛠️ Installation
 
@@ -107,7 +122,7 @@ ollama-ui/
 ## 🚀 Usage
 
 ### Basic Chat
-1. Select a model from the sidebar
+1. Select a model from the sidebar (including vision and reasoning models)
 2. Type your message and press Enter
 3. Enjoy AI responses with optional TTS
 
@@ -124,15 +139,21 @@ Was weißt du noch?
 What do you remember?
 ```
 
+### Vision & Multimodal
+- **Image Upload**: Drag & drop or click camera icon
+- **File Upload**: Click paperclip icon for documents
+- **Vision Models**: Use llama3.2-vision or similar models
+- **Analysis**: Click "Analyze Files" button for document processing
+
 ### Voice Features
 - **Speech Input**: Click microphone button
 - **TTS Output**: Enable in settings, choose voice
 - **Multi-language**: Select recognition language
 
-### Image Support
-- **Upload**: Drag & drop or click camera icon
-- **Preview**: See images before sending
-- **Vision Models**: Use LLaVA or similar models
+### Reasoning Models
+- **Special Display**: Reasoning process shown in expandable blocks
+- **Silent Reasoning**: Only final answers are spoken via TTS
+- **Models**: phi4-reasoning, qwen2.5-coder, and other reasoning LLMs
 
 ## ⚙️ Configuration
 
@@ -177,9 +198,23 @@ DEFAULT_TTS_VOICE = "de-DE-KatjaNeural"     # Default voice
 - Check internet connection (Edge TTS requires online access)
 - Try different voice in settings
 
+**Vision models not seeing images**
+- Ensure you're using a vision-capable model (llama3.2-vision, LLaVA)
+- Check that images are properly uploaded before sending
+
+**Reasoning not showing**
+- Use reasoning-capable models (phi4-reasoning, qwen2.5-coder)
+- Reasoning blocks appear automatically for supported responses
+
+**File upload issues**
+- Check file size (max 10MB per file)
+- Supported formats: TXT, PDF, DOCX, CSV, XLSX, JSON, XML
+- PDF parsing requires PyPDF2 installation
+
 **Memory errors**
 - Check file permissions in `data/memories/` folder
 - Verify JSON syntax in memory files
+- Reset memory file to `[]` if corrupted
 
 **CORS errors**
 - Restart backend server
@@ -207,13 +242,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔮 Roadmap
 
-- [ ] **Multi-user Support** - User sessions
-- [ ] **Plugin System** - Extensible architecture  
-- [ ] **RAG Integration** - Document chat
+- [ ] **Advanced PDF Processing** - Better text extraction and OCR support
+- [ ] **Multi-user Support** - User sessions and authentication
+- [ ] **Plugin System** - Extensible architecture for custom tools
+- [ ] **RAG Integration** - Document embeddings and vector search
 - [ ] **Voice Cloning** - Custom TTS voices
-- [ ] **Mobile App** - React Native/Flutter
-- [ ] **Docker Support** - Easy deployment
-- [ ] **Cloud Integration** - Backup & sync
+- [ ] **Mobile App** - React Native/Flutter companion
+- [ ] **Docker Support** - Easy deployment and scaling
+- [ ] **Cloud Integration** - Backup & sync across devices
+- [ ] **Conversation Branching** - Multiple chat threads
+- [ ] **Model Fine-tuning** - Custom model training interface
+- [ ] **Advanced Memory** - Semantic search and auto-categorization
+- [ ] **Collaboration** - Shared chats and team workspaces
 
 ## 📞 Support
 

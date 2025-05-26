@@ -21,6 +21,11 @@ itsdangerous>=2.0.0,<3.0.0
 Jinja2>=3.0.0,<4.0.0
 MarkupSafe>=2.0.0,<3.0.0
 
+# File Processing - NEW
+PyPDF2==3.0.1
+python-docx==1.1.0
+openpyxl==3.1.2
+
 # Optional TTS Dependencies (install if needed)
 # torch>=1.9.0
 # whisper-tts
