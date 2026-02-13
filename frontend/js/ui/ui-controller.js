@@ -1,6 +1,6 @@
 /**
- * UI-Controller für die Ollama Chat-Anwendung.
- * Verwaltet die Benutzeroberfläche und Benutzerinteraktionen.
+ * UI Controller for the Ollama Chat Application.
+ * Manages user interface and interactions.
  */
 
 class UIController {
@@ -12,23 +12,23 @@ class UIController {
     this.memoryManager = memoryManager;
     this.ttsController = ttsController;
     
-    // DOM-Elemente
+    // DOM Elements
     this.messageContainer = document.getElementById('message-container');
     this.userInput = document.getElementById('user-input');
     this.sendBtn = document.getElementById('send-btn');
     this.micBtn = document.getElementById('mic-btn');
     
-    // Bild-Upload Elemente
+    // Image Upload Elements
     this.imageUploadBtn = document.getElementById('image-upload-btn');
     this.imageUpload = document.getElementById('image-upload');
     this.imagePreviewContainer = document.getElementById('image-preview-container');
-	
-	// ⭐ File-Upload Elemente
-	this.fileUploadBtn = document.getElementById('file-upload-btn');
-	this.fileUpload = document.getElementById('file-upload');
-	this.filePreviewContainer = document.getElementById('file-preview-container');
     
-    // ⭐ Avatar-Elemente
+    // File Upload Elements
+    this.fileUploadBtn = document.getElementById('file-upload-btn');
+    this.fileUpload = document.getElementById('file-upload');
+    this.filePreviewContainer = document.getElementById('file-preview-container');
+
+    // Avatar Elements
     this.userAvatarBtn = document.getElementById('user-avatar-btn');
     this.userAvatarUpload = document.getElementById('user-avatar-upload');
     this.userAvatarPreview = document.getElementById('user-avatar-preview');
@@ -60,25 +60,25 @@ class UIController {
     // Flags
     this.isProcessing = false;
     this.isSpeechRecognitionActive = false;
-    this.selectedImages = []; // Array für ausgewählte Bilder
-    this.selectedFiles = []; // ⭐ Array für ausgewählte Dateien
-	
-    // ⭐ Avatar-Daten
+    this.selectedImages = [];
+    this.selectedFiles = [];
+
+    // Avatar Data
     this.userAvatar = null;
     this.aiAvatar = null;
     
-    // Event-Listener einrichten
+    // Setup Event Listeners
     this.setupEventListeners();
     
-    // Gespeicherte Einstellungen laden
+    // Load Saved Settings
     this.loadSettings();
   }
   
   /**
-   * Event-Listener für die UI-Elemente einrichten.
+   * Setup event listeners for UI elements.
    */
   setupEventListeners() {
-    // Nachricht senden
+    // Send Message
     this.sendBtn.addEventListener('click', () => this.sendMessage());
     this.userInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -87,22 +87,22 @@ class UIController {
       }
     });
     
-    // Spracherkennung
+    // Speech Recognition
     this.micBtn.addEventListener('click', () => this.toggleSpeechRecognition());
     
-    // Bild-Upload Event-Listener
+    // Image Upload
     this.imageUploadBtn.addEventListener('click', () => this.imageUpload.click());
     this.imageUpload.addEventListener('change', (e) => this.handleImageSelection(e.target.files));
     
-	// ⭐ File-Upload Event-Listener
-	this.fileUploadBtn.addEventListener('click', () => this.fileUpload.click());
-	this.fileUpload.addEventListener('change', (e) => this.handleFileSelection(e.target.files));
-	
-    // Drag & Drop Support
+    // File Upload
+    this.fileUploadBtn.addEventListener('click', () => this.fileUpload.click());
+    this.fileUpload.addEventListener('change', (e) => this.handleFileSelection(e.target.files));
+
+    // Drag & Drop
     this.userInput.addEventListener('dragover', (e) => this.handleDragOver(e));
     this.userInput.addEventListener('drop', (e) => this.handleDrop(e));
     
-    // ⭐ Avatar Event-Listener
+    // Avatar Events
     this.userAvatarBtn.addEventListener('click', () => this.userAvatarUpload.click());
     this.userAvatarUpload.addEventListener('change', (e) => this.handleAvatarUpload(e, 'user'));
     this.userAvatarReset.addEventListener('click', () => this.resetAvatar('user'));
@@ -111,13 +111,13 @@ class UIController {
     this.aiAvatarUpload.addEventListener('change', (e) => this.handleAvatarUpload(e, 'ai'));
     this.aiAvatarReset.addEventListener('click', () => this.resetAvatar('ai'));
     
-    // Einstellungen aktualisieren
+    // Settings Updates
     this.modelSelect.addEventListener('change', () => this.saveSettings());
     this.voiceSelect.addEventListener('change', () => this.saveSettings());
     this.speechLanguageSelect.addEventListener('change', () => this.saveSettings());
     this.systemPrompt.addEventListener('change', () => this.saveSettings());
     
-    // Slider-Ereignisse
+    // Sliders
     this.temperatureSlider.addEventListener('input', () => {
       this.temperatureValue.textContent = this.temperatureSlider.value;
       this.saveSettings();
@@ -138,39 +138,39 @@ class UIController {
       this.saveSettings();
     });
     
-    // Checkboxen
+    // Checkboxes
     this.enableTts.addEventListener('change', () => this.saveSettings());
     this.darkModeToggle.addEventListener('change', () => {
       this.themeManager.toggleTheme();
       this.saveSettings();
     });
     
-    // Aktionen
+    // Actions
     this.clearChatBtn.addEventListener('click', () => this.clearChat());
     this.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
     
-    // Auto-Resize für Textarea mit Memory-Erkennung
+    // Auto-Resize Textarea
     this.userInput.addEventListener('input', () => {
       this.autoResizeTextarea();
       
-      // ⭐ Memory-Command Live-Erkennung
+      // Memory Command Live Detection
       const message = this.userInput.value.trim();
-      if (message.length > 5) { // Nur bei längeren Nachrichten prüfen
+      if (message.length > 5) {
         this.showMemoryHint(message);
       }
     });
   }
   
   /**
-   * UI initialisieren und rendern.
+   * Initialize and render UI.
    */
   renderUI() {
-    // Gespeicherte Chat-Nachrichten laden
+    // Load chat history
     this.chatManager.loadChatHistory().forEach(message => {
       this.addMessageToUI(message.role, message.content);
     });
     
-    // Sidebar-Status wiederherstellen
+    // Restore sidebar state
     const isSidebarHidden = localStorage.getItem('ollama_ui_sidebar_hidden') === 'true';
     if (isSidebarHidden) {
       document.querySelector('.app-container').classList.add('sidebar-hidden');
@@ -178,14 +178,14 @@ class UIController {
   }
   
   /**
-   * Gespeicherte Einstellungen laden.
+   * Load saved settings.
    */
   loadSettings() {
-    // Dunkelmodus
+    // Dark Mode
     const darkMode = localStorage.getItem('ollama_ui_dark_mode') !== 'false';
     this.darkModeToggle.checked = darkMode;
     
-    // TTS aktiviert
+    // TTS Enabled
     const ttsEnabled = localStorage.getItem('ollama_ui_tts_enabled') !== 'false';
     this.enableTts.checked = ttsEnabled;
     
@@ -195,47 +195,44 @@ class UIController {
         this.speechLanguageSelect.value = speechLanguage;
     }
     
-    // ⭐ Avatar-Einstellungen laden
+    // Load Avatars
     this.loadAvatars();
     
-    // Temperatur
+    // Temperature
     const temperature = localStorage.getItem('ollama_ui_temperature') || '0.7';
     this.temperatureSlider.value = temperature;
     this.temperatureValue.textContent = temperature;
     
-    // TTS-Rate
+    // TTS Rate
     const rate = localStorage.getItem('ollama_ui_tts_rate') || '1.0';
     this.rateSlider.value = rate;
     this.rateValue.textContent = rate;
     
-    // TTS-Pitch
+    // TTS Pitch
     const pitch = localStorage.getItem('ollama_ui_tts_pitch') || '1.0';
     this.pitchSlider.value = pitch;
     this.pitchValue.textContent = pitch;
     
     // System Prompt
-    const systemPrompt = localStorage.getItem('ollama_ui_system_prompt') || 'Du bist ein hilfreicher Assistent.';
+    const systemPrompt = localStorage.getItem('ollama_ui_system_prompt') || 'You are a helpful assistant.';
     this.systemPrompt.value = systemPrompt;
     
-    // Kontext-Länge
+    // Context Length
     const contextLength = localStorage.getItem('ollama_ui_context_length') || '10';
     this.contextLengthSlider.value = contextLength;
     this.contextLengthValue.textContent = contextLength;
   }
   
   /**
-   * Einstellungen speichern.
+   * Save settings to local storage.
    */
   saveSettings() {
-    // Dunkelmodus
     localStorage.setItem('ollama_ui_dark_mode', this.darkModeToggle.checked);
     
-    // Ausgewähltes Modell
     if (this.modelSelect.value) {
       localStorage.setItem('ollama_ui_model', this.modelSelect.value);
     }
     
-    // ⭐ Avatar-Speicherung
     if (this.userAvatar) {
         localStorage.setItem('ollama_ui_user_avatar', this.userAvatar);
     }
@@ -243,62 +240,52 @@ class UIController {
         localStorage.setItem('ollama_ui_ai_avatar', this.aiAvatar);
     }
     
-    // Ausgewählte Stimme
     if (this.voiceSelect.value) {
       localStorage.setItem('ollama_ui_voice', this.voiceSelect.value);
     }
     
-    // Speech Language
     if (this.speechLanguageSelect && this.speechLanguageSelect.value) {
         localStorage.setItem('ollama_ui_speech_language', this.speechLanguageSelect.value);
     }
     
-    // TTS aktiviert
     localStorage.setItem('ollama_ui_tts_enabled', this.enableTts.checked);
-    
-    // Temperatur
     localStorage.setItem('ollama_ui_temperature', this.temperatureSlider.value);
-    
-    // TTS-Rate
     localStorage.setItem('ollama_ui_tts_rate', this.rateSlider.value);
-    
-    // TTS-Pitch
     localStorage.setItem('ollama_ui_tts_pitch', this.pitchSlider.value);
-    
-    // System Prompt
     localStorage.setItem('ollama_ui_system_prompt', this.systemPrompt.value);
-    
-    // Kontext-Länge
     localStorage.setItem('ollama_ui_context_length', this.contextLengthSlider.value);
   }
   
   /**
-   * Nachricht senden.
+   * Send message.
    */
-  async sendMessage() {
-    const message = this.userInput.value.trim();
+  async sendMessage(customMessage = null) {
+    let message = customMessage || this.userInput.value.trim();
     
-    if ((!message && this.selectedImages.length === 0) || this.isProcessing) {
+    if ((!message && this.selectedImages.length === 0 && this.selectedFiles.length === 0) || this.isProcessing) {
       return;
     }
     
-    // ⭐ Memory-Command Erkennung
+    // Memory Command Detection
     const isMemoryCmd = this.api.isMemoryCommand(message);
     
-    // Benutzereingabe zurücksetzen und verarbeiten
+    // Reset input
     this.userInput.value = '';
     this.autoResizeTextarea();
     this.isProcessing = true;
     
-    // Benutzeränderungen anzeigen (mit Bildern falls vorhanden)
+    // Show user message (with images if any)
+    // Note: Files are handled separately in message construction but not shown as inline images
     this.addMessageToUI('user', message, this.selectedImages);
-	this.showTypingIndicator();
+    this.showTypingIndicator();
     
-    // ⭐ Unterschiedliche Placeholder für Memory-Befehle
+    // Set placeholder
     if (isMemoryCmd) {
-      this.userInput.placeholder = 'Verarbeite Memory-Befehl...';
+      this.userInput.placeholder = 'Processing memory...';
+    } else if (this.selectedFiles.length > 0) {
+      this.userInput.placeholder = 'Analyzing files...';
     } else {
-      this.userInput.placeholder = 'Warte auf Antwort...';
+      this.userInput.placeholder = 'Waiting for response...';
     }
     
     this.sendBtn.disabled = true;
@@ -313,14 +300,15 @@ class UIController {
       const pitch = this.pitchSlider.value;
       const contextLength = parseInt(this.contextLengthSlider.value);
       
-      // Chat-Kontext abrufen
+      // Get Chat Context
       const context = this.chatManager.getChatContext(contextLength);
       
-      // Bilder für das Backend vorbereiten
+      // Prepare Images and Files
       const imageData = await this.prepareImagesForUpload();
+      const fileData = await this.prepareFilesForUpload();
       
-      // LLM-Anfrage
-      const response = await this.chatManager.sendMessage({
+      // Construct parameters
+      const params = {
         model: selectedModel,
         message,
         system_prompt: systemPromptText,
@@ -330,87 +318,86 @@ class UIController {
         rate,
         pitch,
         context,
-        images: imageData // Bilder hinzufügen
-      });
+        images: imageData,
+        files: fileData // Unified handling
+      };
+
+      // Send Request
+      const response = await this.chatManager.sendMessage(params);
       
-      // ⭐ Memory-Aktion verarbeiten und entsprechende Benachrichtigung anzeigen
+      // Handle Memory Actions
       if (response.memory_action === 'save') {
-        this.showNotification('💾 Erinnerung wurde gespeichert!', 'success');
-        console.log('Memory saved successfully');
+        this.showNotification('💾 Memory saved!', 'success');
       } else if (response.memory_action === 'recall') {
-        this.showNotification('🧠 Erinnerungen wurden abgerufen!', 'info');
-        console.log('Memories recalled successfully');
+        this.showNotification('🧠 Memories recalled!', 'info');
       }
       
-      // Antwort anzeigen
-	// ⭐ Antwort mit Reasoning anzeigen
-		if (response.has_reasoning) {
-		  this.addReasoningMessageToUI(response.response, response.reasoning);
-		} else {
-		  this.addMessageToUI('assistant', response.response);
-		}
+      // Show Response
+      if (response.has_reasoning) {
+        this.addReasoningMessageToUI(response.response, response.reasoning);
+      } else {
+        this.addMessageToUI('assistant', response.response);
+      }
       
-      // Audio abspielen, wenn TTS aktiviert ist
+      // Play Audio
       if (enableTts && response.audio_file) {
         this.ttsController.playAudio(response.audio_file);
       }
       
     } catch (error) {
-      console.error('Fehler beim Senden der Nachricht:', error);
-      this.showError('Fehler beim Senden der Nachricht. Bitte versuche es erneut.');
+      console.error('Error sending message:', error);
+      this.showError('Error sending message. Please try again.');
     } finally {
       this.isProcessing = false;
-      this.userInput.placeholder = 'Schreibe eine Nachricht...';
+      this.userInput.placeholder = 'Write a message...';
       this.sendBtn.disabled = false;
       this.userInput.focus();
-	  this.hideTypingIndicator();
+      this.hideTypingIndicator();
       
-      // Bilder nach dem Senden löschen
+      // Clear attachments
       this.clearImages();
+      this.clearFiles();
     }
   }
   
   /**
-   * Eine Nachricht zur UI hinzufügen.
+   * Add message to UI.
    */
   addMessageToUI(role, content, images = []) {
     const messageEl = document.createElement('div');
     messageEl.classList.add('message', `${role}-message`);
     
-    // ⭐ Avatar mit Bild oder Fallback
+    // Avatar
     const avatarEl = document.createElement('div');
     avatarEl.classList.add('message-avatar');
     
     if (role === 'user' && this.userAvatar) {
-      // User Avatar mit Bild
       const imgEl = document.createElement('img');
       imgEl.src = this.userAvatar;
       imgEl.alt = 'User Avatar';
       avatarEl.appendChild(imgEl);
     } else if (role === 'assistant' && this.aiAvatar) {
-      // AI Avatar mit Bild
       const imgEl = document.createElement('img');
       imgEl.src = this.aiAvatar;
       imgEl.alt = 'AI Avatar';
       avatarEl.appendChild(imgEl);
     } else {
-      // Fallback Text-Avatar
       avatarEl.textContent = role === 'user' ? 'U' : 'AI';
     }
     
     messageEl.appendChild(avatarEl);
     
-    // Nachrichteninhalt
+    // Content
     const contentEl = document.createElement('div');
     contentEl.classList.add('message-content');
     
-    // Bilder in Nachricht anzeigen
+    // Images
     if (images && images.length > 0) {
       const imagesContainer = document.createElement('div');
       imagesContainer.classList.add('message-images');
       
       if (typeof images[0] === 'object' && images[0].data) {
-        // Neue Bilder (File-Objekte mit data)
+        // New image objects (with base64 data)
         images.forEach(image => {
           const imgEl = document.createElement('img');
           imgEl.src = `data:${image.type};base64,${image.data}`;
@@ -419,7 +406,7 @@ class UIController {
           imagesContainer.appendChild(imgEl);
         });
       } else {
-        // Legacy: File-Objekte direkt
+        // Legacy/Direct file objects
         images.forEach(file => {
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -436,7 +423,7 @@ class UIController {
       contentEl.appendChild(imagesContainer);
     }
     
-    // Text-Inhalt
+    // Text
     if (content) {
       const textContainer = document.createElement('div');
       const formattedContent = this.formatMessage(content);
@@ -447,37 +434,37 @@ class UIController {
     messageEl.appendChild(contentEl);
     this.messageContainer.appendChild(messageEl);
     
-    // Zum Ende scrollen
+    // Scroll to bottom
     this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
     
-    // Chat-Verlauf speichern
+    // Save to history
     if (role === 'user' || role === 'assistant') {
       this.chatManager.addMessageToHistory(role, content);
     }
   }
   
   /**
-   * Nachrichtentext formatieren.
+   * Format message text.
    */
   formatMessage(text) {
-    // Code-Blöcke formatieren
+    // Code blocks
     let formatted = text.replace(/```([\s\S]*?)```/g, (match, code) => {
       return `<pre><code>${this.escapeHtml(code)}</code></pre>`;
     });
     
-    // Inline-Code formatieren
+    // Inline code
     formatted = formatted.replace(/`([^`]+)`/g, (match, code) => {
       return `<code class="inline-code">${this.escapeHtml(code)}</code>`;
     });
     
-    // Zeilenumbrüche beibehalten
+    // Line breaks
     formatted = formatted.replace(/\n/g, '<br>');
     
     return formatted;
   }
   
   /**
-   * HTML-Zeichen escapen.
+   * Escape HTML characters.
    */
   escapeHtml(html) {
     const div = document.createElement('div');
@@ -486,34 +473,19 @@ class UIController {
   }
   
   /**
-   * Fehler anzeigen.
+   * Show error notification.
    */
   showError(message) {
-    const notification = document.createElement('div');
-    notification.classList.add('notification', 'error');
-    notification.textContent = message;
-    
-    this.notificationContainer.appendChild(notification);
-    
-    // Nach 5 Sekunden automatisch entfernen
-    setTimeout(() => {
-      notification.classList.add('fade-out');
-      setTimeout(() => {
-        if (notification.parentNode) {
-          this.notificationContainer.removeChild(notification);
-        }
-      }, 300);
-    }, 5000);
+    this.showNotification(message, 'error');
   }
   
   /**
-   * ⭐ Erweiterte Benachrichtigung mit Typ.
+   * Show notification with type.
    */
   showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.classList.add('notification');
     
-    // Typ-spezifische Klassen
     if (type === 'error') {
       notification.classList.add('error');
     } else if (type === 'success') {
@@ -526,7 +498,6 @@ class UIController {
     
     this.notificationContainer.appendChild(notification);
     
-    // Nach 3 Sekunden automatisch entfernen
     setTimeout(() => {
       notification.classList.add('fade-out');
       setTimeout(() => {
@@ -534,53 +505,39 @@ class UIController {
           this.notificationContainer.removeChild(notification);
         }
       }, 300);
-    }, 3000);
+    }, 3000 + (type === 'error' ? 2000 : 0));
   }
   
   /**
-   * Chat löschen.
+   * Clear chat history.
    */
   clearChat() {
-    // Bestätigung anfordern
     if (confirm('Do you really want to delete the entire chat history?')) {
-      // Chat-Container leeren
       this.messageContainer.innerHTML = `
         <div class="welcome-message">
           <h2>Welcome to Astroburner's Magic Tool!</h2>
           <p>🤖 Select a model in the settings.</p>
           <p>🗣️ Select a language in the settings.</p>
           <p>🔊 Select a TTS in the settings and start the conversation.</p>
-          <p><strong>💾 Memory Commands:</strong></p>
-          <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
-            <li><code>/remember [text]</code> - Save information</li>
-            <li><code>Merke dir: [text]</code> - Speichere Info (DE)</li>
-            <li><code>Remember: [text]</code> - Save info (EN)</li>
-            <li><code>Was weißt du noch?</code> - Recall memories (DE)</li>
-            <li><code>What do you remember?</code> - Recall memories (EN)</li>
-          </ul>
         </div>
       `;
       
-      // Chat-Verlauf zurücksetzen
       this.chatManager.clearChatHistory();
-      
       this.showNotification('Chat history has been deleted.');
     }
   }
   
   /**
-   * Seitenleiste ein-/ausblenden.
+   * Toggle sidebar visibility.
    */
   toggleSidebar() {
     const appContainer = document.querySelector('.app-container');
     appContainer.classList.toggle('sidebar-hidden');
-    
-    // Sidebar-Status speichern
     localStorage.setItem('ollama_ui_sidebar_hidden', appContainer.classList.contains('sidebar-hidden'));
   }
   
   /**
-   * Textarea automatisch vergrößern.
+   * Auto-resize textarea.
    */
   autoResizeTextarea() {
     this.userInput.style.height = 'auto';
@@ -588,11 +545,11 @@ class UIController {
   }
   
   /**
-   * Modell-Auswahl füllen.
+   * Populate model select.
    */
   populateModelSelect(models) {
     if (!models || models.length === 0) {
-      this.modelSelect.innerHTML = '<option value="">Keine Modelle verfügbar</option>';
+      this.modelSelect.innerHTML = '<option value="">No models available</option>';
       return;
     }
     
@@ -605,7 +562,6 @@ class UIController {
       this.modelSelect.appendChild(option);
     });
     
-    // Gespeichertes Modell auswählen
     const savedModel = localStorage.getItem('ollama_ui_model');
     if (savedModel && models.includes(savedModel)) {
       this.modelSelect.value = savedModel;
@@ -615,17 +571,16 @@ class UIController {
   }
   
   /**
-   * Stimmen-Auswahl füllen.
+   * Populate voice select.
    */
   populateVoiceSelect(voices) {
     if (!voices || voices.length === 0) {
-      this.voiceSelect.innerHTML = '<option value="">Keine Stimmen verfügbar</option>';
+      this.voiceSelect.innerHTML = '<option value="">No voices available</option>';
       return;
     }
     
     this.voiceSelect.innerHTML = '';
     
-    // Stimmen nach Sprache gruppieren
     const voicesByLocale = voices.reduce((acc, voice) => {
       const locale = voice.locale;
       if (!acc[locale]) {
@@ -635,7 +590,6 @@ class UIController {
       return acc;
     }, {});
     
-    // Optgroups für jede Sprache erstellen
     Object.keys(voicesByLocale).sort().forEach(locale => {
       const optgroup = document.createElement('optgroup');
       optgroup.label = locale;
@@ -650,12 +604,10 @@ class UIController {
       this.voiceSelect.appendChild(optgroup);
     });
     
-    // Gespeicherte Stimme auswählen
     const savedVoice = localStorage.getItem('ollama_ui_voice');
     if (savedVoice) {
       this.voiceSelect.value = savedVoice;
     } else {
-      // Standardmäßig deutsche Stimme auswählen, wenn verfügbar
       const germanVoices = voices.filter(voice => voice.locale.startsWith('de-'));
       if (germanVoices.length > 0) {
         this.voiceSelect.value = germanVoices[0].name;
@@ -666,11 +618,11 @@ class UIController {
   }
   
   /**
-   * Spracherkennung ein-/ausschalten.
+   * Toggle speech recognition.
    */
   toggleSpeechRecognition() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      this.showError('Spracherkennung wird in diesem Browser nicht unterstützt.');
+      this.showError('Speech recognition is not supported in this browser.');
       return;
     }
     
@@ -682,13 +634,12 @@ class UIController {
   }
   
   /**
-   * Spracherkennung starten.
+   * Start speech recognition.
    */
   startSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     this.recognition = new SpeechRecognition();
     
-    // Sprache aus Dropdown lesen
     const selectedLang = this.speechLanguageSelect?.value || 'de-DE';
     this.recognition.lang = selectedLang;
     
@@ -699,7 +650,7 @@ class UIController {
       this.isSpeechRecognitionActive = true;
       this.micBtn.classList.add('active');
       this.speechStatus.classList.add('active');
-      this.userInput.placeholder = 'Spreche jetzt...';
+      this.userInput.placeholder = 'Speak now...';
     };
     
     this.recognition.onresult = (event) => {
@@ -712,15 +663,14 @@ class UIController {
     };
     
     this.recognition.onerror = (event) => {
-      console.error('Spracherkennungsfehler:', event.error);
-      this.showError(`Spracherkennungsfehler: ${event.error}`);
+      console.error('Speech recognition error:', event.error);
+      this.showError(`Speech error: ${event.error}`);
       this.stopSpeechRecognition();
     };
     
     this.recognition.onend = () => {
       this.stopSpeechRecognition();
       
-      // Wenn Text erkannt wurde, automatisch senden
       if (this.userInput.value.trim() !== '') {
         setTimeout(() => this.sendMessage(), 500);
       }
@@ -730,7 +680,7 @@ class UIController {
   }
   
   /**
-   * Spracherkennung stoppen.
+   * Stop speech recognition.
    */
   stopSpeechRecognition() {
     if (this.recognition) {
@@ -740,11 +690,11 @@ class UIController {
     this.isSpeechRecognitionActive = false;
     this.micBtn.classList.remove('active');
     this.speechStatus.classList.remove('active');
-    this.userInput.placeholder = 'Schreibe eine Nachricht...';
+    this.userInput.placeholder = 'Write a message...';
   }
   
   /**
-   * Bild-Auswahl verarbeiten.
+   * Handle image selection.
    */
   handleImageSelection(files) {
     Array.from(files).forEach(file => {
@@ -760,31 +710,43 @@ class UIController {
   }
   
   /**
-   * Bild-Vorschau erstellen.
+   * Create image preview.
    */
   createImagePreview(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
       const previewDiv = document.createElement('div');
       previewDiv.className = 'image-preview-item';
-      previewDiv.innerHTML = `
-        <img src="${e.target.result}" alt="Preview" />
-        <button class="remove-image-btn" onclick="window.uiController.removeImage('${file.name}')" title="Bild entfernen">×</button>
-        <span class="image-name">${file.name}</span>
-      `;
+
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.alt = 'Preview';
+
+      const btn = document.createElement('button');
+      btn.className = 'remove-image-btn';
+      btn.title = 'Remove image';
+      btn.textContent = '×';
+      btn.addEventListener('click', () => this.removeImage(file.name));
+
+      const span = document.createElement('span');
+      span.className = 'image-name';
+      span.textContent = file.name;
+
+      previewDiv.appendChild(img);
+      previewDiv.appendChild(btn);
+      previewDiv.appendChild(span);
+
       this.imagePreviewContainer.appendChild(previewDiv);
     };
     reader.readAsDataURL(file);
   }
   
   /**
-   * Bild aus Vorschau entfernen.
+   * Remove image.
    */
   removeImage(fileName) {
-    // Bild aus Array entfernen
     this.selectedImages = this.selectedImages.filter(file => file.name !== fileName);
     
-    // Vorschau-Element entfernen
     const previewItems = this.imagePreviewContainer.querySelectorAll('.image-preview-item');
     previewItems.forEach(item => {
       const imageName = item.querySelector('.image-name').textContent;
@@ -793,14 +755,13 @@ class UIController {
       }
     });
     
-    // Container verstecken wenn keine Bilder mehr da sind
     if (this.selectedImages.length === 0) {
       this.imagePreviewContainer.style.display = 'none';
     }
   }
   
   /**
-   * Drag Over Event verarbeiten.
+   * Handle drag over.
    */
   handleDragOver(e) {
     e.preventDefault();
@@ -809,7 +770,7 @@ class UIController {
   }
   
   /**
-   * Drop Event verarbeiten.
+   * Handle drop.
    */
   handleDrop(e) {
     e.preventDefault();
@@ -822,7 +783,7 @@ class UIController {
   }
   
   /**
-   * Bilder für Upload vorbereiten.
+   * Prepare images for upload.
    */
   async prepareImagesForUpload() {
     const imagePromises = this.selectedImages.map(file => {
@@ -833,7 +794,7 @@ class UIController {
             name: file.name,
             type: file.type,
             size: file.size,
-            data: e.target.result.split(',')[1] // Base64 ohne "data:image/...;base64," Teil
+            data: e.target.result.split(',')[1] // Base64
           });
         };
         reader.onerror = reject;
@@ -845,7 +806,7 @@ class UIController {
   }
   
   /**
-   * Alle Bilder löschen.
+   * Clear all images.
    */
   clearImages() {
     this.selectedImages = [];
@@ -854,12 +815,12 @@ class UIController {
   }
   
   /**
-   * ⭐ Avatar-Upload verarbeiten.
+   * Handle avatar upload.
    */
   handleAvatarUpload(event, type) {
     const file = event.target.files[0];
     if (!file || !file.type.startsWith('image/')) {
-        this.showError('Bitte wähle eine gültige Bilddatei aus.');
+        this.showError('Please select a valid image file.');
         return;
     }
     
@@ -878,14 +839,14 @@ class UIController {
         }
         
         this.saveSettings();
-        this.showNotification(`${type === 'user' ? 'Dein' : 'AI'} Avatar wurde aktualisiert!`, 'success');
+        this.showNotification(`${type === 'user' ? 'Your' : 'AI'} avatar updated!`, 'success');
     };
     
     reader.readAsDataURL(file);
   }
 
   /**
-   * ⭐ Avatar zurücksetzen.
+   * Reset avatar.
    */
   resetAvatar(type) {
     if (type === 'user') {
@@ -900,14 +861,13 @@ class UIController {
         localStorage.removeItem('ollama_ui_ai_avatar');
     }
     
-    this.showNotification(`${type === 'user' ? 'Dein' : 'AI'} Avatar wurde zurückgesetzt!`, 'info');
+    this.showNotification(`${type === 'user' ? 'Your' : 'AI'} avatar reset!`, 'info');
   }
 
   /**
-   * ⭐ Gespeicherte Avatare laden.
+   * Load stored avatars.
    */
   loadAvatars() {
-    // User Avatar laden
     const savedUserAvatar = localStorage.getItem('ollama_ui_user_avatar');
     if (savedUserAvatar) {
         this.userAvatar = savedUserAvatar;
@@ -915,7 +875,6 @@ class UIController {
         this.userAvatarPreview.classList.add('loaded');
     }
     
-    // AI Avatar laden
     const savedAiAvatar = localStorage.getItem('ollama_ui_ai_avatar');
     if (savedAiAvatar) {
         this.aiAvatar = savedAiAvatar;
@@ -925,28 +884,15 @@ class UIController {
   }
   
   /**
-   * ⭐ Memory-Helper Methoden
-   */
-
-  /**
-   * Prüft ob eine Nachricht ein Memory-Befehl ist (Frontend-Erkennung).
-   */
-  isMemoryCommand(message) {
-    return this.api.isMemoryCommand(message);
-  }
-
-  /**
-   * Zeigt Memory-spezifische UI-Hinweise an.
+   * Show memory hint.
    */
   showMemoryHint(message) {
-    const isMemoryCmd = this.isMemoryCommand(message);
+    const isMemoryCmd = this.api.isMemoryCommand(message);
     
     if (isMemoryCmd) {
-      // Visueller Hinweis für Memory-Befehle
-      this.userInput.style.borderColor = '#4CAF50'; // Grüner Rahmen
+      this.userInput.style.borderColor = '#4CAF50';
       this.userInput.style.boxShadow = '0 0 5px rgba(76, 175, 80, 0.3)';
       
-      // Nach kurzer Zeit zurücksetzen
       setTimeout(() => {
         this.userInput.style.borderColor = '';
         this.userInput.style.boxShadow = '';
@@ -955,31 +901,27 @@ class UIController {
   }
 
   /**
-   * Memory-Statistiken anzeigen (optional).
+   * Show memory stats.
    */
   async showMemoryStats() {
     try {
       const memories = await this.memoryManager.getMemories();
-      this.showNotification(`📚 ${memories.length} Erinnerungen gespeichert`, 'info');
+      this.showNotification(`📚 ${memories.length} memories stored`, 'info');
     } catch (error) {
-      console.error('Fehler beim Abrufen der Memory-Statistiken:', error);
+      console.error('Error retrieving memory stats:', error);
     }
   }
 
   /**
-   * ⭐ Zusätzliche Utility-Methoden
-   */
-
-  /**
-   * Überprüft ob alle notwendigen Services verfügbar sind.
+   * Check services availability.
    */
   checkServices() {
     const requiredServices = ['api', 'themeManager', 'chatManager', 'memoryManager', 'ttsController'];
     const missingServices = requiredServices.filter(service => !this[service]);
     
     if (missingServices.length > 0) {
-      console.warn('Fehlende Services:', missingServices);
-      this.showError(`Fehlende Services: ${missingServices.join(', ')}`);
+      console.warn('Missing Services:', missingServices);
+      this.showError(`Missing Services: ${missingServices.join(', ')}`);
       return false;
     }
     
@@ -987,11 +929,12 @@ class UIController {
   }
 
   /**
-   * Debuginfo für Entwickler anzeigen.
+   * Show debug info.
    */
   showDebugInfo() {
     const info = {
       selectedImages: this.selectedImages.length,
+      selectedFiles: this.selectedFiles.length,
       userAvatar: !!this.userAvatar,
       aiAvatar: !!this.aiAvatar,
       speechLanguage: this.speechLanguageSelect?.value,
@@ -1002,32 +945,32 @@ class UIController {
     };
     
     console.table(info);
-    this.showNotification('Debug-Info in Konsole ausgegeben', 'info');
+    this.showNotification('Debug info logged to console', 'info');
   }
 
   /**
-   * Keyboard-Shortcuts handhaben.
+   * Handle keyboard shortcuts.
    */
   handleKeyboardShortcuts(event) {
-    // Ctrl/Cmd + Enter = Nachricht senden
+    // Ctrl/Cmd + Enter = Send
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
       this.sendMessage();
     }
     
-    // Ctrl/Cmd + M = Memory-Statistiken anzeigen
+    // Ctrl/Cmd + M = Memory Stats
     if ((event.ctrlKey || event.metaKey) && event.key === 'm') {
       event.preventDefault();
       this.showMemoryStats();
     }
     
-    // Ctrl/Cmd + D = Debug-Info
+    // Ctrl/Cmd + D = Debug Info
     if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
       event.preventDefault();
       this.showDebugInfo();
     }
     
-    // ESC = Spracherkennung stoppen
+    // ESC = Stop Speech
     if (event.key === 'Escape' && this.isSpeechRecognitionActive) {
       event.preventDefault();
       this.stopSpeechRecognition();
@@ -1035,406 +978,293 @@ class UIController {
   }
 
   /**
-   * Initialisiert Keyboard-Shortcuts.
+   * Initialize keyboard shortcuts.
    */
   initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
   }
 
   /**
-   * ⭐ Erweiterte Initialisierung
+   * Initialize Controller.
    */
   initialize() {
-    // Services prüfen
     if (!this.checkServices()) {
       return false;
     }
     
-    // Keyboard-Shortcuts aktivieren
     this.initKeyboardShortcuts();
-    
-    // UI rendern
     this.renderUI();
     
-    console.log('🚀 UIController erfolgreich initialisiert!');
-    console.log('💡 Keyboard-Shortcuts:');
-    console.log('   Ctrl/Cmd + Enter = Nachricht senden');
-    console.log('   Ctrl/Cmd + M = Memory-Statistiken');
-    console.log('   Ctrl/Cmd + D = Debug-Info');
-    console.log('   ESC = Spracherkennung stoppen');
-    
+    console.log('🚀 UIController initialized!');
     return true;
   }
 
   /**
-   * ⭐ Cleanup-Methoden für Speicher-Management
+   * File Selection Handler.
    */
-  cleanup() {
-    // Event-Listener entfernen
-    if (this.recognition) {
-      this.recognition.abort();
-      this.recognition = null;
+  handleFileSelection(files) {
+    Array.from(files).forEach(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        this.showError(`File too large: ${file.name} (max 10MB)`);
+        return;
+      }
+
+      this.selectedFiles.push(file);
+      this.createFilePreview(file);
+    });
+
+    if (this.selectedFiles.length > 0) {
+      this.filePreviewContainer.style.display = 'flex';
     }
-    
-    // Temporäre Daten löschen
-    this.clearImages();
-    
-    // Status zurücksetzen
-    this.isProcessing = false;
-    this.isSpeechRecognitionActive = false;
-    
-    console.log('🧹 UIController cleanup completed');
   }
 
   /**
-   * ⭐ Error-Recovery Methoden
+   * Create file preview.
    */
-  recoverFromError() {
-    // Versuche UI-Status zu normalisieren
-    this.isProcessing = false;
-    this.sendBtn.disabled = false;
-    this.userInput.placeholder = 'Schreibe eine Nachricht...';
-    
-    // Spracherkennung stoppen falls aktiv
-    if (this.isSpeechRecognitionActive) {
-      this.stopSpeechRecognition();
-    }
-    
-    // Bilder löschen falls vorhanden
-    this.clearImages();
-    
-    this.showNotification('🔄 System wurde zurückgesetzt', 'info');
-  }
-  /**
- * ⭐ FILE-UPLOAD METHODEN
- */
+  createFilePreview(file) {
+    const previewDiv = document.createElement('div');
+    previewDiv.className = 'file-preview-item';
 
-/**
- * Datei-Auswahl verarbeiten.
- */
-handleFileSelection(files) {
-  Array.from(files).forEach(file => {
-    // Prüfe Dateigröße (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      this.showError(`File too large: ${file.name} (max 10MB)`);
+    const formatFileSize = (bytes) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+    
+    const getFileExtension = (filename) => {
+      return filename.split('.').pop().toUpperCase();
+    };
+    
+    // Build HTML structure programmatically to avoid inline handlers
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'file-info';
+
+    const fileNameDiv = document.createElement('div');
+    fileNameDiv.className = 'file-name';
+    fileNameDiv.textContent = file.name;
+
+    const fileDetails = document.createElement('div');
+    fileDetails.className = 'file-details';
+
+    const fileTypeSpan = document.createElement('span');
+    fileTypeSpan.className = 'file-type';
+    fileTypeSpan.textContent = getFileExtension(file.name);
+
+    const fileSizeSpan = document.createElement('span');
+    fileSizeSpan.textContent = formatFileSize(file.size);
+    
+    fileDetails.appendChild(fileTypeSpan);
+    fileDetails.appendChild(fileSizeSpan);
+
+    fileInfo.appendChild(fileNameDiv);
+    fileInfo.appendChild(fileDetails);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-file-btn';
+    removeBtn.title = 'Remove file';
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', () => this.removeFile(file.name));
+
+    previewDiv.appendChild(fileInfo);
+    previewDiv.appendChild(removeBtn);
+
+    this.filePreviewContainer.appendChild(previewDiv);
+
+    // Add Analyze Button if not exists
+    if (!this.filePreviewContainer.querySelector('.analyze-files-btn')) {
+      const analyzeBtn = document.createElement('button');
+      analyzeBtn.className = 'analyze-files-btn';
+      analyzeBtn.textContent = '🔍 Analyze Files';
+      analyzeBtn.addEventListener('click', () => this.analyzeFiles());
+      this.filePreviewContainer.appendChild(analyzeBtn);
+    }
+  }
+
+  /**
+   * Remove file.
+   */
+  removeFile(fileName) {
+    this.selectedFiles = this.selectedFiles.filter(file => file.name !== fileName);
+    
+    const previewItems = this.filePreviewContainer.querySelectorAll('.file-preview-item');
+    previewItems.forEach(item => {
+      const fileNameEl = item.querySelector('.file-name');
+      if (fileNameEl && fileNameEl.textContent === fileName) {
+        item.remove();
+      }
+    });
+    
+    if (this.selectedFiles.length === 0) {
+      this.filePreviewContainer.style.display = 'none';
+    }
+  }
+
+  /**
+   * Analyze files.
+   */
+  analyzeFiles() {
+    if (this.selectedFiles.length === 0) {
+      this.showError('No files selected for analysis');
       return;
     }
     
-    this.selectedFiles.push(file);
-    this.createFilePreview(file);
-  });
-  
-  if (this.selectedFiles.length > 0) {
-    this.filePreviewContainer.style.display = 'flex';
+    const message = `Please analyze the uploaded files and provide insights about their content, structure, and any important information.`;
+    this.sendMessage(message);
   }
-}
 
-/**
- * Datei-Vorschau erstellen.
- */
-createFilePreview(file) {
-  const previewDiv = document.createElement('div');
-  previewDiv.className = 'file-preview-item';
-  
-  // Dateigröße formatieren
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-  
-  // Dateierweiterung extrahieren
-  const getFileExtension = (filename) => {
-    return filename.split('.').pop().toUpperCase();
-  };
-  
-  previewDiv.innerHTML = `
-    <div class="file-info">
-      <div class="file-name">${file.name}</div>
-      <div class="file-details">
-        <span class="file-type">${getFileExtension(file.name)}</span>
-        <span>${formatFileSize(file.size)}</span>
-      </div>
-    </div>
-    <button class="remove-file-btn" onclick="window.uiController.removeFile('${file.name}')" title="Remove file">×</button>
-  `;
-  
-  this.filePreviewContainer.appendChild(previewDiv);
-  
-  // Analyze-Button hinzufügen (nur einmal)
-  if (!this.filePreviewContainer.querySelector('.analyze-files-btn')) {
-    const analyzeBtn = document.createElement('button');
-    analyzeBtn.className = 'analyze-files-btn';
-    analyzeBtn.textContent = '🔍 Analyze Files';
-    analyzeBtn.onclick = () => this.analyzeFiles();
-    this.filePreviewContainer.appendChild(analyzeBtn);
+  /**
+   * Prepare files for upload.
+   */
+  async prepareFilesForUpload() {
+    const filePromises = this.selectedFiles.map(file => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: e.target.result.split(',')[1] // Base64
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    return Promise.all(filePromises);
   }
-}
 
-/**
- * Datei aus Vorschau entfernen.
- */
-removeFile(fileName) {
-  // Datei aus Array entfernen
-  this.selectedFiles = this.selectedFiles.filter(file => file.name !== fileName);
-  
-  // Vorschau-Element entfernen
-  const previewItems = this.filePreviewContainer.querySelectorAll('.file-preview-item');
-  previewItems.forEach(item => {
-    const fileNameEl = item.querySelector('.file-name');
-    if (fileNameEl && fileNameEl.textContent === fileName) {
-      item.remove();
-    }
-  });
-  
-  // Container verstecken wenn keine Dateien mehr da sind
-  if (this.selectedFiles.length === 0) {
+  /**
+   * Clear all files.
+   */
+  clearFiles() {
+    this.selectedFiles = [];
+    this.filePreviewContainer.innerHTML = '';
     this.filePreviewContainer.style.display = 'none';
   }
-}
 
-/**
- * Dateien analysieren.
- */
-async analyzeFiles() {
-  if (this.selectedFiles.length === 0) {
-    this.showError('No files selected for analysis');
-    return;
+  /**
+   * Show Typing Indicator.
+   */
+  showTypingIndicator() {
+    this.hideTypingIndicator();
+    
+    const typingEl = document.createElement('div');
+    typingEl.classList.add('message', 'assistant-message', 'typing-indicator-message');
+    typingEl.id = 'typing-indicator';
+    
+    const avatarEl = document.createElement('div');
+    avatarEl.classList.add('typing-indicator-avatar');
+    
+    if (this.aiAvatar) {
+      const imgEl = document.createElement('img');
+      imgEl.src = this.aiAvatar;
+      imgEl.alt = 'AI Avatar';
+      avatarEl.appendChild(imgEl);
+    } else {
+      avatarEl.textContent = 'AI';
+    }
+
+    const contentEl = document.createElement('div');
+    contentEl.classList.add('typing-indicator');
+    contentEl.innerHTML = `
+      <div class="typing-indicator-content">
+        <p class="typing-text">is typing...</p>
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    `;
+
+    typingEl.appendChild(avatarEl);
+    typingEl.appendChild(contentEl);
+
+    this.messageContainer.appendChild(typingEl);
+    this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
   }
-  
-  try {
-    // Dateien für Upload vorbereiten
-    const fileData = await this.prepareFilesForUpload();
-    
-    // Nachricht mit Dateien senden
-    const message = `Please analyze the uploaded files and provide insights about their content, structure, and any important information.`;
-    
-    // Temporär die normale sendMessage verwenden, aber mit Files
-    await this.sendMessageWithFiles(message, fileData);
-    
-  } catch (error) {
-    console.error('Error analyzing files:', error);
-    this.showError('Error analyzing files: ' + error.message);
+
+  /**
+   * Hide Typing Indicator.
+   */
+  hideTypingIndicator() {
+    const existingIndicator = document.getElementById('typing-indicator');
+    if (existingIndicator) {
+      existingIndicator.remove();
+    }
   }
-}
 
-/**
- * Dateien für Upload vorbereiten.
- */
-async prepareFilesForUpload() {
-  const filePromises = this.selectedFiles.map(file => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        resolve({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          data: e.target.result.split(',')[1] // Base64 ohne "data:..." Teil
-        });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  });
-  
-  return Promise.all(filePromises);
-}
-
-/**
- * Nachricht mit Dateien senden.
- */
-async sendMessageWithFiles(message, fileData) {
-  this.isProcessing = true;
-  this.userInput.placeholder = 'Analyzing files...';
-  this.sendBtn.disabled = true;
-  
-  // Benutzer-Nachricht anzeigen
-  this.addMessageToUI('user', message);
-  this.showTypingIndicator();
-  
-  try {
-    const selectedModel = this.modelSelect.value || 'llama2';
-    const systemPromptText = this.systemPrompt.value;
-    const temperature = parseFloat(this.temperatureSlider.value);
-    const enableTts = this.enableTts.checked;
-    const voice = this.voiceSelect.value || 'de-DE-KatjaNeural';
-    const rate = this.rateSlider.value;
-    const pitch = this.pitchSlider.value;
-    const contextLength = parseInt(this.contextLengthSlider.value);
+  /**
+   * Add Reasoning Message.
+   */
+  addReasoningMessageToUI(answer, reasoning) {
+    const messageEl = document.createElement('div');
+    messageEl.classList.add('message', 'assistant-message');
     
-    // Chat-Kontext abrufen
-    const context = this.chatManager.getChatContext(contextLength);
+    // Avatar
+    const avatarEl = document.createElement('div');
+    avatarEl.classList.add('message-avatar');
     
-    // Backend-Anfrage mit Dateien
-    const response = await this.chatManager.sendMessage({
-      model: selectedModel,
-      message,
-      system_prompt: systemPromptText,
-      temperature,
-      enable_tts: enableTts,
-      voice,
-      rate,
-      pitch,
-      context,
-      files: fileData // ⭐ Dateien hinzufügen
-    });
-   
-   
-    // Audio abspielen, wenn TTS aktiviert ist
-    if (enableTts && response.audio_file) {
-      this.ttsController.playAudio(response.audio_file);
+    if (this.aiAvatar) {
+      const imgEl = document.createElement('img');
+      imgEl.src = this.aiAvatar;
+      imgEl.alt = 'AI Avatar';
+      avatarEl.appendChild(imgEl);
+    } else {
+      avatarEl.textContent = 'AI';
     }
     
-  } catch (error) {
-    console.error('Error sending message with files:', error);
-    this.showError('Error analyzing files: ' + error.message);
-  } finally {
-    this.isProcessing = false;
-    this.userInput.placeholder = 'Write a message...';
-    this.sendBtn.disabled = false;
+    messageEl.appendChild(avatarEl);
     
-    // Dateien nach dem Senden löschen
-    this.hideTypingIndicator();
-	this.clearFiles();
-  }
-}
+    // Content
+    const contentEl = document.createElement('div');
+    contentEl.classList.add('message-content');
 
-/**
- * Alle Dateien löschen.
- */
-clearFiles() {
-  this.selectedFiles = [];
-  this.filePreviewContainer.innerHTML = '';
-  this.filePreviewContainer.style.display = 'none';
-}
-/**
- * ⭐ TYPING INDICATOR METHODEN
- */
+    // Reasoning Container
+    if (reasoning) {
+      const reasoningContainer = document.createElement('div');
+      reasoningContainer.className = 'reasoning-container';
 
-/**
- * Typing Indicator anzeigen.
- */
-showTypingIndicator() {
-  // Remove existing typing indicator
-  this.hideTypingIndicator();
-  
-  const typingEl = document.createElement('div');
-  typingEl.classList.add('message', 'assistant-message', 'typing-indicator-message');
-  typingEl.id = 'typing-indicator';
-  
-  // Avatar für Typing Indicator
-  const avatarEl = document.createElement('div');
-  avatarEl.classList.add('typing-indicator-avatar');
-  
-  if (this.aiAvatar) {
-    // AI Avatar mit Bild
-    const imgEl = document.createElement('img');
-    imgEl.src = this.aiAvatar;
-    imgEl.alt = 'AI Avatar';
-    avatarEl.appendChild(imgEl);
-  } else {
-    // Fallback Text-Avatar
-    avatarEl.textContent = 'AI';
-  }
-  
-  // Typing Content
-  const contentEl = document.createElement('div');
-  contentEl.classList.add('typing-indicator');
-  contentEl.innerHTML = `
-    <div class="typing-indicator-content">
-      <p class="typing-text">is typing...</p>
-      <div class="typing-dots">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  `;
-  
-  typingEl.appendChild(avatarEl);
-  typingEl.appendChild(contentEl);
-  
-  this.messageContainer.appendChild(typingEl);
-  
-  // Zum Ende scrollen
-  this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
-}
-
-/**
- * Typing Indicator entfernen.
- */
-hideTypingIndicator() {
-  const existingIndicator = document.getElementById('typing-indicator');
-  if (existingIndicator) {
-    existingIndicator.remove();
-  }
-}
-
-/**
- * ⭐ REASONING MESSAGE METHODEN
- */
-
-/**
- * Reasoning-Nachricht zur UI hinzufügen.
- */
-addReasoningMessageToUI(answer, reasoning) {
-  const messageEl = document.createElement('div');
-  messageEl.classList.add('message', 'assistant-message');
-  
-  // Avatar
-  const avatarEl = document.createElement('div');
-  avatarEl.classList.add('message-avatar');
-  
-  if (this.aiAvatar) {
-    const imgEl = document.createElement('img');
-    imgEl.src = this.aiAvatar;
-    imgEl.alt = 'AI Avatar';
-    avatarEl.appendChild(imgEl);
-  } else {
-    avatarEl.textContent = 'AI';
-  }
-  
-  messageEl.appendChild(avatarEl);
-  
-  // Message Content
-  const contentEl = document.createElement('div');
-  contentEl.classList.add('message-content');
-  
-  // Reasoning Container (aufklappbar)
-  if (reasoning) {
-    const reasoningContainer = document.createElement('div');
-    reasoningContainer.className = 'reasoning-container';
-    reasoningContainer.innerHTML = `
-      <div class="reasoning-header" onclick="this.parentElement.querySelector('.reasoning-content').classList.toggle('expanded'); this.querySelector('.reasoning-toggle').classList.toggle('expanded');">
+      const header = document.createElement('div');
+      header.className = 'reasoning-header';
+      header.innerHTML = `
         <div class="reasoning-title">
           <span class="reasoning-icon">🧠</span>
           <span>Reasoning Process</span>
           <span class="reasoning-badge">Click to expand</span>
         </div>
         <span class="reasoning-toggle">▼</span>
-      </div>
-      <div class="reasoning-content">${this.escapeHtml(reasoning)}</div>
-    `;
-    contentEl.appendChild(reasoningContainer);
-  }
-  
-  // Final Answer
-  const answerDiv = document.createElement('div');
-  const formattedAnswer = this.formatMessage(answer);
-  answerDiv.innerHTML = formattedAnswer;
-  contentEl.appendChild(answerDiv);
-  
-  messageEl.appendChild(contentEl);
-  this.messageContainer.appendChild(messageEl);
-  
-  // Zum Ende scrollen
-  this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
-  
-  // Chat-Verlauf speichern (nur die Final Answer)
-  this.chatManager.addMessageToHistory('assistant', answer);
-}
+      `;
 
+      const content = document.createElement('div');
+      content.className = 'reasoning-content';
+      content.innerHTML = this.escapeHtml(reasoning);
+
+      header.addEventListener('click', () => {
+        content.classList.toggle('expanded');
+        header.querySelector('.reasoning-toggle').classList.toggle('expanded');
+      });
+
+      reasoningContainer.appendChild(header);
+      reasoningContainer.appendChild(content);
+      contentEl.appendChild(reasoningContainer);
+    }
+
+    // Final Answer
+    const answerDiv = document.createElement('div');
+    answerDiv.innerHTML = this.formatMessage(answer);
+    contentEl.appendChild(answerDiv);
+
+    messageEl.appendChild(contentEl);
+    this.messageContainer.appendChild(messageEl);
+
+    this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+
+    // Save to history
+    this.chatManager.addMessageToHistory('assistant', answer);
+  }
 }
