@@ -7,6 +7,7 @@ import logging
 import time
 import os
 import asyncio
+import threading
 import edge_tts
 from edge_tts import VoicesManager  # VoicesManager-Import hinzugefügt
 import config
@@ -31,6 +32,10 @@ try:
 except ImportError:
     COQUI_TTS_AVAILABLE = False
     logger.warning("Coqui TTS nicht verfügbar")
+
+# Globale Variablen für Whisper-Modell-Caching
+WHISPER_MODEL = None
+WHISPER_LOCK = threading.Lock()
 
 # Vollständige Liste aller Edge-TTS-Stimmen
 ALL_EDGE_TTS_VOICES = [
@@ -268,12 +273,19 @@ def whisper_tts(text, voice="en-US-Neural2-F"):
         logger.error("Whisper TTS nicht verfügbar")
         return None
     
+    global WHISPER_MODEL
+
     try:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model = WhisperTTS.from_pretrained("openai/whisper-large-v2").to(device)
+        # Lazy Loading des Whisper-Modells
+        if WHISPER_MODEL is None:
+            with WHISPER_LOCK:
+                if WHISPER_MODEL is None:
+                    device = "cuda" if torch.cuda.is_available() else "cpu"
+                    logger.info(f"Lade Whisper TTS Modell auf {device} (einmalige Initialisierung)...")
+                    WHISPER_MODEL = WhisperTTS.from_pretrained("openai/whisper-large-v2").to(device)
         
         # Sprache generieren
-        audio = model.generate_speech(text, voice=voice)
+        audio = WHISPER_MODEL.generate_speech(text, voice=voice)
         
         # In Datei speichern
         timestamp = int(time.time())
