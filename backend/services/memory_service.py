@@ -110,20 +110,6 @@ def get_memories():
         logger.error(f"Fehler bei get_memories: {e}")
         return []
 
-def clear_memories():
-    """Alle Erinnerungen löschen."""
-    try:
-        with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
-            json.dump([], f, ensure_ascii=False, indent=2)
-        
-        print("🗑️  Alle Erinnerungen gelöscht!")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Fehler beim Löschen: {e}")
-        logger.error(f"Fehler bei clear_memories: {e}")
-        return False
-
 # Test-Funktion
 def test_memory_service():
     """Teste den Memory Service"""
