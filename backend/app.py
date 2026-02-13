@@ -12,6 +12,7 @@ from services.llm_service import query_ollama, get_available_models, query_ollam
 from services.tts_service import text_to_speech, get_available_voices
 from services.memory_service import save_memory, get_memories
 from services.file_service import parse_uploaded_files, format_files_for_llm
+from utils.validation import validate_chat_payload, validate_memory_payload
 
 ## Logging konfigurieren
 logging.basicConfig(
@@ -51,8 +52,12 @@ def chat():
     """Chat-Anfrage verarbeiten."""
     try:
         data = request.json
-        if not data:
-            return jsonify({"error": "Keine Daten erhalten"}), 400
+
+        # Eingabevalidierung
+        is_valid, error_msg = validate_chat_payload(data)
+        if not is_valid:
+            logger.warning(f"Validierungsfehler bei Chat-Anfrage: {error_msg}")
+            return jsonify({"error": error_msg}), 400
             
         model = data.get('model', config.DEFAULT_MODEL)
         message = data.get('message', '')
@@ -135,10 +140,14 @@ def add_memory():
     """Neue Erinnerung speichern."""
     try:
         data = request.json
-        memory_text = data.get('text', '')
         
-        if not memory_text:
-            return jsonify({"error": "Keine Erinnerung angegeben"}), 400
+        # Eingabevalidierung
+        is_valid, error_msg = validate_memory_payload(data)
+        if not is_valid:
+            logger.warning(f"Validierungsfehler bei Memory-Anfrage: {error_msg}")
+            return jsonify({"error": error_msg}), 400
+
+        memory_text = data.get('text')
         
         save_memory(memory_text)
         return jsonify({"success": True})
