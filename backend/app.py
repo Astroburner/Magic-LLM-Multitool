@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Hauptanwendungsdatei für die Ollama UI Backend-Anwendung.
-Definiert Flask-Routen und koordiniert die Services.
+Main application file for the Ollama UI Backend.
+Defines Flask routes and coordinates services.
 """
 import logging
-import os
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 import config
@@ -13,46 +12,49 @@ from services.tts_service import text_to_speech, get_available_voices
 from services.memory_service import save_memory, get_memories
 from services.file_service import parse_uploaded_files, format_files_for_llm
 
-## Logging konfigurieren
+# Configure logging
 logging.basicConfig(
-    level=logging.DEBUG,  # Von INFO auf DEBUG geändert für detailliertere Logs
+    level=logging.DEBUG if config.DEBUG else logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Flask-App initialisieren
+# Initialize Flask App
 app = Flask(__name__, static_folder='../frontend')
 
-# CORS aktivieren für Frontend-Backend-Kommunikation
+# Enable CORS for frontend-backend communication
 CORS(app)
+
+# Ensure directories exist on startup
+config.ensure_directories()
 
 @app.route('/api/models', methods=['GET'])
 def get_models():
-    """Verfügbare Ollama-Modelle abrufen."""
+    """Retrieve available Ollama models."""
     try:
         models = get_available_models()
         return jsonify({"models": models})
     except Exception as e:
-        logger.error(f"Fehler beim Abrufen der Modelle: {e}")
+        logger.error(f"Error retrieving models: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/voices', methods=['GET'])
 def get_voices():
-    """Verfügbare TTS-Stimmen abrufen."""
+    """Retrieve available TTS voices."""
     try:
         voices = get_available_voices()
         return jsonify({"voices": voices})
     except Exception as e:
-        logger.error(f"Fehler beim Abrufen der Stimmen: {e}")
+        logger.error(f"Error retrieving voices: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """Chat-Anfrage verarbeiten."""
+    """Process chat request."""
     try:
         data = request.json
         if not data:
-            return jsonify({"error": "Keine Daten erhalten"}), 400
+            return jsonify({"error": "No data received"}), 400
             
         model = data.get('model', config.DEFAULT_MODEL)
         message = data.get('message', '')
@@ -62,62 +64,63 @@ def chat():
         images = data.get('images', [])
         files = data.get('files', [])
         
-        # Memory-Kontext laden und intelligent verarbeiten
-        from services.memory_service import get_memories
+        # Load memory context and process intelligently
         try:
             memories = get_memories()
             if memories:
-                # Nur die letzten 5 Erinnerungen verwenden
+                # Use only the last 5 memories
                 recent_memories = memories[-5:]
                 
-                # Memory-Kontext für natürliche Integration vorbereiten
+                # Prepare memory context for natural integration
                 memory_texts = []
                 for mem in recent_memories:
-                    timestamp = mem.get('timestamp', '')[:10]
-                    text = mem.get('text', '').strip('"')  # Anführungszeichen entfernen
+                    # timestamp = mem.get('timestamp', '')[:10] # Unused variable
+                    text = mem.get('text', '').strip('"')  # Remove quotes
                     memory_texts.append(f"• {text}")
                 
                 memory_context = "\n".join(memory_texts)
                 
                 system_prompt += f"""
 
-=== BACKGROUND KNOWLEDGE (Du weißt folgendes) ===
+=== BACKGROUND KNOWLEDGE (You know the following) ===
 {memory_context}
 
-ANWEISUNG: Diese Informationen sind Teil deines Wissens. Verwende sie natürlich in Gesprächen, aber zitiere sie nicht wörtlich. Integriere sie wie eigene Erinnerungen und antworte in deinen eigenen Worten.
+INSTRUCTION: This information is part of your knowledge. Use it naturally in conversations, but do not quote it verbatim. Integrate it like your own memories and answer in your own words.
 """
-                logger.info(f"Memory-Kontext hinzugefügt: {len(recent_memories)} Erinnerungen")
+                logger.info(f"Memory context added: {len(recent_memories)} memories")
         except Exception as memory_error:
-            logger.warning(f"Fehler beim Laden der Erinnerungen: {memory_error}")
+            logger.warning(f"Error loading memories: {memory_error}")
         
-        # Dateien verarbeiten falls vorhanden
+        # Process files if present
         if files:
             try:
                 processed_files = parse_uploaded_files(files)
                 if processed_files:
                     file_content = format_files_for_llm(processed_files)
-                    # Datei-Inhalt an die Nachricht anhängen
+                    # Append file content to message
                     message = f"{message}\n\n{file_content}"
-                    logger.info(f"Dateien hinzugefügt: {len(processed_files)} Dateien verarbeitet")
+                    logger.info(f"Files added: {len(processed_files)} files processed")
             except Exception as file_error:
-                logger.warning(f"Fehler beim Verarbeiten der Dateien: {file_error}")
+                logger.warning(f"Error processing files: {file_error}")
 
-        # ⭐ Reasoning-LLM Support
+        # Reasoning-LLM Support
+        # Context is passed here and handled inside query_ollama_with_reasoning
         reasoning_response = query_ollama_with_reasoning(model, message, system_prompt, temperature, context, images)
         
-        # TTS aktivieren, wenn gewünscht (nur für Final Answer)
+        # Enable TTS if requested (only for Final Answer)
         audio_file = None
         if data.get('enable_tts', True):
             voice = data.get('voice', config.DEFAULT_TTS_VOICE)
             rate = data.get('rate', config.DEFAULT_TTS_RATE)
             pitch = data.get('pitch', config.DEFAULT_TTS_PITCH)
             
-            # Nur die finale Antwort für TTS verwenden
+            # Use only the final answer for TTS
             tts_text = reasoning_response['answer']
-            audio_file = text_to_speech(tts_text, voice, rate, pitch)
+            if tts_text:
+                audio_file = text_to_speech(tts_text, voice, rate, pitch)
             
             if reasoning_response['has_reasoning']:
-                logger.info("Reasoning-LLM Response - TTS nur für Final Answer")
+                logger.info("Reasoning-LLM Response - TTS only for Final Answer")
 
         return jsonify({
             "response": reasoning_response['answer'],
@@ -127,56 +130,56 @@ ANWEISUNG: Diese Informationen sind Teil deines Wissens. Verwende sie natürlich
         })
         
     except Exception as e:
-        logger.error(f"Fehler bei der Chat-Verarbeitung: {e}")
+        logger.error(f"Error in chat processing: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/memory', methods=['POST'])
 def add_memory():
-    """Neue Erinnerung speichern."""
+    """Save new memory."""
     try:
         data = request.json
         memory_text = data.get('text', '')
         
         if not memory_text:
-            return jsonify({"error": "Keine Erinnerung angegeben"}), 400
+            return jsonify({"error": "No memory text provided"}), 400
         
         save_memory(memory_text)
         return jsonify({"success": True})
     except Exception as e:
-        logger.error(f"Fehler beim Speichern der Erinnerung: {e}")
+        logger.error(f"Error saving memory: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/memories', methods=['GET'])
 def retrieve_memories():
-    """Gespeicherte Erinnerungen abrufen."""
+    """Retrieve stored memories."""
     try:
         memories = get_memories()
         return jsonify({"memories": memories})
     except Exception as e:
-        logger.error(f"Fehler beim Abrufen der Erinnerungen: {e}")
+        logger.error(f"Error retrieving memories: {e}")
         return jsonify({"error": str(e)}), 500
 
-# Audiodateien bereitstellen
+# Serve audio files
 @app.route('/assets/audio/<path:filename>')
 def serve_audio(filename):
-    """Audiodateien bereitstellen."""
+    """Serve audio files."""
     try:
         return send_from_directory(config.AUDIO_OUTPUT_DIR, filename)
     except Exception as e:
-        logger.error(f"Fehler beim Bereitstellen der Audiodatei: {e}")
+        logger.error(f"Error serving audio file: {e}")
         abort(404)
 
-# Hauptseite bereitstellen
+# Serve main page
 @app.route('/')
 def serve_index():
-    """Hauptseite der Anwendung."""
+    """Serve main application page."""
     return send_from_directory('../frontend', 'index.html')
 
-# Andere statische Dateien bereitstellen
+# Serve other static files
 @app.route('/<path:path>')
 def serve_static_files(path):
-    """Statische Dateien bereitstellen."""
+    """Serve static files."""
     return send_from_directory('../frontend', path)
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=5000)
+    app.run(host=config.HOST, port=config.PORT)

@@ -1,156 +1,156 @@
 # -*- coding: utf-8 -*-
 """
-Memory-Service für die Verwaltung des Langzeitgedächtnisses.
+Memory Service for long-term memory management.
 """
 import logging
 import json
 import os
+import shutil
+import threading
 from datetime import datetime
 from pathlib import Path
-
-# Sicherer Import
-try:
-    import config
-    MEMORIES_DIR = config.MEMORIES_DIR
-    print(f"✅ Config geladen, MEMORIES_DIR: {MEMORIES_DIR}")
-except Exception as e:
-    # Fallback wenn config nicht funktioniert
-    MEMORIES_DIR = Path(__file__).parent.parent.parent / "data" / "memories"
-    print(f"⚠️  Config-Fehler ({e}), verwende Fallback: {MEMORIES_DIR}")
+import config
 
 logger = logging.getLogger(__name__)
 
-# Pfad zur Erinnerungsdatei
-MEMORIES_FILE = MEMORIES_DIR / "long_term_memories.json"
+# Path to memory file
+MEMORIES_FILE = config.MEMORIES_DIR / "long_term_memories.json"
+
+# Lock for thread safety
+file_lock = threading.Lock()
 
 def _ensure_memories_file():
-    """Stellt sicher, dass die Erinnerungsdatei existiert."""
+    """Ensures that the memory file exists."""
     try:
-        print(f"🔍 Prüfe Erinnerungsdatei: {MEMORIES_FILE}")
-        
         if not MEMORIES_FILE.exists():
-            print(f"📁 Erstelle Verzeichnis: {MEMORIES_FILE.parent}")
+            if config.DEBUG:
+                print(f"📁 Creating directory: {MEMORIES_FILE.parent}")
             MEMORIES_FILE.parent.mkdir(parents=True, exist_ok=True)
             
-            print(f"📄 Erstelle Datei: {MEMORIES_FILE}")
-            with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
-                json.dump([], f, ensure_ascii=False, indent=2)
+            if config.DEBUG:
+                print(f"📄 Creating file: {MEMORIES_FILE}")
             
-            print("✅ Erinnerungsdatei erfolgreich erstellt!")
+            with file_lock:
+                with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
+                    json.dump([], f, ensure_ascii=False, indent=2)
+
+            if config.DEBUG:
+                print("✅ Memory file created successfully!")
         else:
-            print("✅ Erinnerungsdatei existiert bereits!")
+            if config.DEBUG:
+                print("✅ Memory file already exists!")
             
         return True
         
     except Exception as e:
-        print(f"❌ Fehler beim Erstellen der Erinnerungsdatei: {e}")
-        logger.error(f"Fehler bei _ensure_memories_file: {e}")
+        logger.error(f"Error ensuring memory file: {e}")
         return False
 
 def save_memory(text):
-    """Eine neue Erinnerung speichern."""
+    """Save a new memory."""
     try:
-        print(f"💾 Speichere Erinnerung: {text[:50]}...")
+        if config.DEBUG:
+            print(f"💾 Saving memory: {text[:50]}...")
         
         if not _ensure_memories_file():
-            print("❌ Konnte Erinnerungsdatei nicht erstellen!")
+            logger.error("Could not create memory file!")
             return False
         
-        # Aktuelle Erinnerungen laden
-        try:
-            with open(MEMORIES_FILE, 'r', encoding='utf-8') as f:
-                memories = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            print("⚠️  Erstelle neue Erinnerungsliste")
-            memories = []
+        with file_lock:
+            # Load current memories
+            try:
+                with open(MEMORIES_FILE, 'r', encoding='utf-8') as f:
+                    memories = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                logger.warning("Creating new memory list")
+                memories = []
+
+            # Add new memory
+            new_memory = {
+                "id": len(memories) + 1,
+                "timestamp": datetime.now().isoformat(),
+                "text": text
+            }
+            memories.append(new_memory)
+
+            # Backup
+            backup_file = MEMORIES_FILE.with_suffix('.json.backup')
+            if MEMORIES_FILE.exists():
+                shutil.copy2(MEMORIES_FILE, backup_file)
+
+            # Write new file
+            with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
+                json.dump(memories, f, ensure_ascii=False, indent=2)
         
-        # Neue Erinnerung hinzufügen
-        new_memory = {
-            "id": len(memories) + 1,
-            "timestamp": datetime.now().isoformat(),
-            "text": text
-        }
-        memories.append(new_memory)
-        
-        # Speichern mit Backup
-        backup_file = MEMORIES_FILE.with_suffix('.json.backup')
-        
-        # Backup erstellen
-        if MEMORIES_FILE.exists():
-            import shutil
-            shutil.copy2(MEMORIES_FILE, backup_file)
-        
-        # Neue Datei schreiben
-        with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
-            json.dump(memories, f, ensure_ascii=False, indent=2)
-        
-        print(f"✅ Erinnerung #{new_memory['id']} erfolgreich gespeichert!")
-        logger.info(f"Erinnerung gespeichert: {text[:100]}")
+        if config.DEBUG:
+            print(f"✅ Memory #{new_memory['id']} saved successfully!")
+        logger.info(f"Memory saved: {text[:100]}")
         return True
         
     except Exception as e:
-        print(f"❌ Fehler beim Speichern: {e}")
-        logger.error(f"Fehler bei save_memory: {e}")
+        logger.error(f"Error saving memory: {e}")
         return False
 
 def get_memories():
-    """Alle Erinnerungen abrufen."""
+    """Retrieve all memories."""
     try:
         if not _ensure_memories_file():
             return []
         
-        with open(MEMORIES_FILE, 'r', encoding='utf-8') as f:
-            memories = json.load(f)
+        with file_lock:
+            with open(MEMORIES_FILE, 'r', encoding='utf-8') as f:
+                memories = json.load(f)
         
-        print(f"📚 {len(memories)} Erinnerungen geladen")
+        if config.DEBUG:
+            print(f"📚 {len(memories)} memories loaded")
         return memories
         
     except Exception as e:
-        print(f"❌ Fehler beim Laden: {e}")
-        logger.error(f"Fehler bei get_memories: {e}")
+        logger.error(f"Error loading memories: {e}")
         return []
 
 def clear_memories():
-    """Alle Erinnerungen löschen."""
+    """Delete all memories."""
     try:
-        with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
-            json.dump([], f, ensure_ascii=False, indent=2)
+        with file_lock:
+            with open(MEMORIES_FILE, 'w', encoding='utf-8') as f:
+                json.dump([], f, ensure_ascii=False, indent=2)
         
-        print("🗑️  Alle Erinnerungen gelöscht!")
+        if config.DEBUG:
+            print("🗑️ All memories deleted!")
         return True
         
     except Exception as e:
-        print(f"❌ Fehler beim Löschen: {e}")
-        logger.error(f"Fehler bei clear_memories: {e}")
+        logger.error(f"Error clearing memories: {e}")
         return False
 
-# Test-Funktion
+# Test function
 def test_memory_service():
-    """Teste den Memory Service"""
+    """Test the Memory Service"""
     print("\n🧪 === Memory Service Test ===")
     
-    # Test 1: Verzeichnis und Datei prüfen
-    print("\n1. Teste Datei-Erstellung...")
+    # Test 1: Check directory and file
+    print("\n1. Testing file creation...")
     success = _ensure_memories_file()
     
     if not success:
-        print("❌ Test fehlgeschlagen - kann Datei nicht erstellen!")
+        print("❌ Test failed - cannot create file!")
         return
     
-    # Test 2: Erinnerung speichern
-    print("\n2. Teste Erinnerungs-Speicherung...")
-    test_text = f"Test-Erinnerung vom {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    # Test 2: Save memory
+    print("\n2. Testing memory saving...")
+    test_text = f"Test memory from {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     save_memory(test_text)
     
-    # Test 3: Erinnerungen laden
-    print("\n3. Teste Erinnerungs-Laden...")
+    # Test 3: Load memories
+    print("\n3. Testing memory loading...")
     memories = get_memories()
-    print(f"Geladene Erinnerungen: {len(memories)}")
+    print(f"Loaded memories: {len(memories)}")
     
-    for memory in memories[-3:]:  # Zeige letzte 3
+    for memory in memories[-3:]:  # Show last 3
         print(f"  - ID {memory.get('id', '?')}: {memory.get('text', '')[:50]}...")
     
-    print("\n✅ Memory Service Test abgeschlossen!")
+    print("\n✅ Memory Service Test completed!")
 
 if __name__ == "__main__":
     test_memory_service()

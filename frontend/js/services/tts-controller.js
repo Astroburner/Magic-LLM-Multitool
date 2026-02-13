@@ -1,6 +1,6 @@
 /**
- * TTS-Controller für die Ollama Chat-Anwendung.
- * Verwaltet die Text-to-Speech-Funktionalität.
+ * TTS Controller for the Ollama Chat Application.
+ * Manages Text-to-Speech functionality.
  */
 
 class TTSController {
@@ -9,65 +9,67 @@ class TTSController {
     this.isPlaying = false;
     this.stopButton = document.getElementById('stop-tts-btn');
     
-    // Event-Listener für den Stopp-Button
+    // Event Listeners for Stop Button
     if (this.stopButton) {
       this.stopButton.addEventListener('click', () => this.stopAudio());
     }
   }
   
   /**
-   * Eine Audiodatei abspielen.
+   * Play an audio file.
    * 
-   * @param {string} filename - Der Dateiname der abzuspielenden Audiodatei
+   * @param {string} filename - The filename of the audio file to play
    */
   playAudio(filename) {
-    // Aktuelle Audiowiedergabe stoppen, falls vorhanden
+    // Stop current audio playback if any
     this.stopAudio();
     
-    // Neue Audiodatei erstellen und abspielen
+    // Create new audio element
     this.audioElement = new Audio(`/assets/audio/${filename}`);
     
     this.audioElement.onplay = () => {
       this.isPlaying = true;
-      // Stopp-Button anzeigen
+      // Show Stop Button
       if (this.stopButton) {
-        this.stopButton.style.display = 'block';
+        this.stopButton.style.display = 'flex'; // Changed to flex for better alignment
       }
     };
     
     this.audioElement.onended = () => {
       this.isPlaying = false;
       this.audioElement = null;
-      // Stopp-Button ausblenden
+      // Hide Stop Button
       if (this.stopButton) {
         this.stopButton.style.display = 'none';
       }
     };
     
     this.audioElement.onerror = (error) => {
-      console.error('Fehler bei der Audiowiedergabe:', error);
+      console.error('Error playing audio:', error);
       this.isPlaying = false;
       this.audioElement = null;
-      // Stopp-Button ausblenden
+      // Hide Stop Button
       if (this.stopButton) {
         this.stopButton.style.display = 'none';
       }
     };
     
     this.audioElement.play().catch(error => {
-      console.error('Fehler beim Starten der Audiowiedergabe:', error);
+      console.error('Error starting audio playback:', error);
     });
   }
   
   /**
-   * Die aktuelle Audiowiedergabe stoppen.
+   * Stop current audio playback.
    */
   stopAudio() {
-    if (this.audioElement && this.isPlaying) {
+    if (this.audioElement) {
       this.audioElement.pause();
       this.audioElement.currentTime = 0;
+      this.audioElement = null; // Ensure element is cleared
       this.isPlaying = false;
-      // Stopp-Button ausblenden
+
+      // Hide Stop Button
       if (this.stopButton) {
         this.stopButton.style.display = 'none';
       }
